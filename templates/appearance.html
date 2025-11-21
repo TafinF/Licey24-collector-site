@@ -10,25 +10,30 @@
     <div class="appearance-container">
         <header class="appearance-header">
             <h1>📋 Отметка внешнего вида</h1>
-            <p>Выберите класс для проверки внешнего вида</p>
+            <p>Выберите класс</p>
         </header>
 
         <div class="classes-grid">
-            {% set current_building = '' %}
             {% for class in classes %}
-                {% if class.building != current_building %}
-                    {% if current_building != '' %}
+                {% if loop.index0 > 0 %}
+                    {% set prev_class = classes[loop.index0-1] %}
+                    {% set current_num = class.name.split('-')[0] %}
+                    {% set prev_num = prev_class.name.split('-')[0] %}
+                    
+                    {# Разделитель между 4 и 5 #}
+                    {% if prev_num == '4' and current_num == '5' %}
                         <div class="separator"></div>
                     {% endif %}
-                    {% set current_building = class.building %}
-                {% endif %}
-                
-                {% if class.name.split('-')[0] in ['4', '5'] and not loop.first and classes[loop.index-2].name.split('-')[0] not in ['4', '5'] %}
-                    <div class="separator"></div>
-                {% endif %}
-                
-                {% if class.name.split('-')[0] in ['9', '10'] and not loop.first and classes[loop.index-2].name.split('-')[0] not in ['9', '10'] %}
-                    <div class="separator"></div>
+                    
+                    {# Разделитель между 9 и 10 #}
+                    {% if prev_num == '9' and current_num == '10' %}
+                        <div class="separator"></div>
+                    {% endif %}
+                    
+                    {# Разделитель между зданиями #}
+                    {% if prev_class.building != class.building %}
+                        <div class="separator"></div>
+                    {% endif %}
                 {% endif %}
                 
                 <a href="{{ url_for('appearance_class', class_name=class.name) }}" class="class-button">

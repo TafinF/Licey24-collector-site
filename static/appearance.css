@@ -2,67 +2,79 @@
 .appearance-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 15px;
     font-family: Arial, sans-serif;
 }
 
 .appearance-header {
     text-align: center;
-    margin-bottom: 30px;
+    margin-bottom: 25px;
     color: #333;
+}
+
+.appearance-header h1 {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.appearance-header p {
+    font-size: 16px;
+    color: #666;
+    margin: 0;
 }
 
 .classes-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 15px;
-    margin-bottom: 30px;
+    gap: 12px;
+    margin-bottom: 25px;
 }
 
 .class-button {
-    padding: 20px 10px;
-    font-size: 18px;
+    padding: 18px 8px;
+    font-size: 16px;
     font-weight: bold;
     text-decoration: none;
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     color: white;
     border: none;
-    border-radius: 10px;
+    border-radius: 8px;
     cursor: pointer;
     transition: all 0.3s ease;
     text-align: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
 }
 
 .class-button:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 5px 8px rgba(0, 0, 0, 0.15);
     background: linear-gradient(135deg, #764ba2 0%, #667eea 100%);
 }
 
 .separator {
     grid-column: 1 / -1;
-    height: 2px;
+    height: 1px;
     background: linear-gradient(90deg, transparent, #667eea, transparent);
-    margin: 20px 0;
+    margin: 15px 0;
 }
 
 .appearance-footer {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    margin-top: 40px;
-    padding-top: 20px;
+    margin-top: 30px;
+    padding-top: 15px;
     border-top: 1px solid #ddd;
 }
 
 .back-button {
-    padding: 10px 20px;
+    padding: 10px 16px;
     background-color: #6c757d;
     color: white;
     text-decoration: none;
     border-radius: 5px;
     transition: background-color 0.3s ease;
+    font-size: 14px;
 }
 
 .back-button:hover {
@@ -70,7 +82,7 @@
 }
 
 .teacher-info {
-    font-size: 14px;
+    font-size: 13px;
     color: #666;
     font-style: italic;
 }
@@ -78,15 +90,15 @@
 /* Стили для страницы конкретного класса */
 .students-list {
     display: grid;
-    gap: 10px;
-    margin-bottom: 30px;
+    gap: 8px;
+    margin-bottom: 25px;
 }
 
 .student-item {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px;
+    flex-direction: column;
+    gap: 12px;
+    padding: 12px;
     background-color: #f8f9fa;
     border-radius: 8px;
     border-left: 4px solid #667eea;
@@ -100,17 +112,21 @@
 
 .appearance-options {
     display: flex;
-    gap: 10px;
+    gap: 8px;
+    flex-wrap: wrap;
 }
 
 .appearance-option {
-    padding: 8px 15px;
+    padding: 8px 12px;
     border: 2px solid #ddd;
     border-radius: 20px;
     background: white;
     cursor: pointer;
     transition: all 0.3s ease;
     font-size: 14px;
+    flex: 1;
+    min-width: 0;
+    text-align: center;
 }
 
 .appearance-option.selected {
@@ -140,4 +156,65 @@
 .submit-button:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Адаптивность для мобильных устройств */
+@media (max-width: 480px) {
+    .appearance-container {
+        padding: 10px;
+    }
+    
+    .appearance-header h1 {
+        font-size: 20px;
+    }
+    
+    .appearance-header p {
+        font-size: 14px;
+    }
+    
+    .classes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+    }
+    
+    .class-button {
+        padding: 15px 6px;
+        font-size: 15px;
+    }
+    
+    .student-item {
+        padding: 10px;
+    }
+    
+    .student-name {
+        font-size: 15px;
+    }
+    
+    .appearance-options {
+        gap: 6px;
+    }
+    
+    .appearance-option {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+    
+    .back-button {
+        padding: 8px 12px;
+        font-size: 13px;
+    }
+    
+    .teacher-info {
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 320px) {
+    .classes-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .appearance-options {
+        flex-direction: column;
+    }
 }
