@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Внешний вид - Выбор класса</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='appearance.css') }}">
+</head>
+<body>
+    <div class="appearance-container">
+        <header class="appearance-header">
+            <h1>📋 Отметка внешнего вида</h1>
+            <p>Выберите класс для проверки внешнего вида</p>
+        </header>
+
+        <div class="classes-grid">
+            {% set current_building = '' %}
+            {% for class in classes %}
+                {% if class.building != current_building %}
+                    {% if current_building != '' %}
+                        <div class="separator"></div>
+                    {% endif %}
+                    {% set current_building = class.building %}
+                {% endif %}
+                
+                {% if class.name.split('-')[0] in ['4', '5'] and not loop.first and classes[loop.index-2].name.split('-')[0] not in ['4', '5'] %}
+                    <div class="separator"></div>
+                {% endif %}
+                
+                {% if class.name.split('-')[0] in ['9', '10'] and not loop.first and classes[loop.index-2].name.split('-')[0] not in ['9', '10'] %}
+                    <div class="separator"></div>
+                {% endif %}
+                
+                <a href="{{ url_for('appearance_class', class_name=class.name) }}" class="class-button">
+                    {{ class.name }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <footer class="appearance-footer">
+            <a href="{{ url_for('index') }}" class="back-button">← Назад</a>
+            {% if selected_employee %}
+                <div class="teacher-info">
+                    {{ selected_employee.lastName }} {{ selected_employee.firstName }}
+                </div>
+            {% endif %}
+        </footer>
+    </div>
+</body>
+</html>

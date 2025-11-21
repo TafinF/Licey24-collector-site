@@ -11,6 +11,7 @@ COPY app.py .
 COPY templates/ templates/
 COPY static/ static/
 COPY employees.json .
+COPY student.json .
 
 # Создаем непривилегированного пользователя для безопасности
 RUN useradd -m -u 1000 appuser && \

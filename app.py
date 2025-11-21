@@ -3,6 +3,7 @@ import hashlib
 import json
 from flask import Flask, request, render_template, redirect, url_for, make_response
 from urllib.parse import quote, unquote
+import re
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
@@ -117,10 +118,101 @@ def missing_students(class_name):
     
     return redirect(url_for('index'))
 
+def load_classes():
+    """Загрузка и сортировка классов из student.json"""
+    with open('student.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    classes = []
+    for class_info in data['classes']:
+        classes.append({
+            'name': class_info['name'],
+            'building': class_info['building']
+        })
+    
+    # Сортировка классов: сначала по зданию, затем по номеру класса
+    def class_sort_key(cls):
+        # Извлекаем номер класса (все, что до дефиса)
+        class_num = cls['name'].split('-')[0]
+        # Преобразуем в число, если возможно, иначе оставляем как есть
+        try:
+            num = int(class_num)
+        except ValueError:
+            num = float('inf')  # Классы без чисел идут в конец
+        return (cls['building'], num)
+    
+    classes.sort(key=class_sort_key)
+    return classes
+
+def get_class_students(class_name):
+    """Получение списка студентов для указанного класса"""
+    with open('student.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    for class_info in data['classes']:
+        if class_info['name'] == class_name:
+            return class_info['students']
+    return []
+
 @app.route('/appearance')
 def appearance():
-    """Страница для отметки внешнего вида"""
-    return "Страница для отметки внешнего вида"
+    """Страница для отметки внешнего вида - выбор класса"""
+    # Получаем информацию о выбранном сотруднике
+    employee_id = request.cookies.get('employee_id')
+    selected_employee = None
+    
+    if employee_id:
+        for employee in EMPLOYEES:
+            if employee['id'] == int(employee_id):
+                selected_employee = employee
+                break
+    
+    # Загружаем и сортируем классы
+    classes = load_classes()
+    
+    return render_template(
+        'appearance.html', 
+        classes=classes,
+        selected_employee=selected_employee
+    )
+
+@app.route('/appearance/<class_name>')
+def appearance_class(class_name):
+    """Страница для отметки внешнего вида конкретного класса"""
+    # Декодируем название класса из URL
+    decoded_class_name = unquote(class_name)
+    
+    # Получаем информацию о выбранном сотруднике
+    employee_id = request.cookies.get('employee_id')
+    selected_employee = None
+    
+    if employee_id:
+        for employee in EMPLOYEES:
+            if employee['id'] == int(employee_id):
+                selected_employee = employee
+                break
+    
+    # Получаем студентов класса
+    students = get_class_students(decoded_class_name)
+    
+    return render_template(
+        'appearance_class.html',
+        class_name=decoded_class_name,
+        students=students,
+        selected_employee=selected_employee
+    )
+
+@app.route('/submit-appearance', methods=['POST'])
+def submit_appearance():
+    """Обработка отправки данных о внешнем виде"""
+    class_name = request.form.get('class_name')
+    appearance_data = request.form.to_dict()
+    
+    # Здесь будет логика сохранения данных
+    # Пока просто редиректим обратно на страницу appearance
+    print(f"Получены данные для класса {class_name}: {appearance_data}")
+    
+    return redirect(url_for('appearance'))
 
 
 @app.route('/login', methods=['GET', 'POST'])
