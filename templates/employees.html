@@ -13,11 +13,6 @@
             <p>Выберите сотрудника из списка ниже</p>
         </div>
 
-        <!-- Поиск -->
-        <div class="search-container">
-            <input type="text" id="searchInput" placeholder="🔍 Поиск сотрудника..." class="search-input">
-        </div>
-
         <!-- Аккордеон с инструкцией -->
         <div class="accordion">
             <button type="button" class="accordion-btn" onclick="toggleInstructions()">
@@ -26,52 +21,108 @@
             </button>
             <div class="accordion-content" id="instruction-content">
                 <div class="instruction-text">
-                    <p>1. Используйте поле поиска для быстрого нахождения сотрудника</p>
-                    <p>2. Нажмите на кнопку с ФИО сотрудника для выбора</p>
-                    <p>3. После выбора вы будете перенаправлены на главную страницу</p>
-                    <p>4. Выбранный сотрудник будет отображаться на главной странице</p>
+                    <p>1. Введите минимум 3 символа в поле поиска для отображения списка</p>
+                    <p>2. Используйте поле поиска для быстрого нахождения сотрудника</p>
+                    <p>3. Нажмите на кнопку с ФИО сотрудника для выбора</p>
+                    <p>4. После выбора вы будете перенаправлены на главную страницу</p>
                 </div>
             </div>
         </div>
 
+        <!-- Поиск -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Введите минимум 3 символа для поиска..." class="search-input">
+        </div>
+
         <!-- Список сотрудников -->
-        <div class="employees-list" id="employeesList">
-            {% for employee in employees %}
-            <div class="employee-item" data-name="{{ employee.lastName }} {{ employee.firstName }} {{ employee.middleName }}">
-                <a href="{{ url_for('select_employee', employee_id=employee.id) }}" class="employee-btn">
-                    <span class="employee-name">{{ employee.lastName }} {{ employee.firstName }} {{ employee.middleName }}</span>
-                    <span class="employee-id">ID: {{ employee.id }}</span>
-                </a>
+        <div class="employees-list-container">
+            <div class="employees-list" id="employeesList">
+                <div class="initial-state" id="initialState">
+                    <div class="initial-icon">🔍</div>
+                    <h3>Начните вводить ФИО сотрудника</h3>
+                    <p>Введите минимум 3 символа в поле поиска выше для отображения списка сотрудников</p>
+                </div>
+                <!-- Список сотрудников будет добавляться динамически -->
             </div>
-            {% endfor %}
         </div>
 
         <div class="actions">
-            <a href="/" class="btn btn-secondary">← На главную</a>
             <a href="/logout" class="btn btn-logout">🚪 Выйти</a>
         </div>
     </div>
 
     <script>
+        // Данные сотрудников
+        const employees = [
+            {% for employee in employees %}
+            {
+                id: {{ employee.id }},
+                name: "{{ employee.lastName }} {{ employee.firstName }} {{ employee.middleName }}",
+                url: "{{ url_for('select_employee', employee_id=employee.id) }}"
+            }{% if not loop.last %},{% endif %}
+            {% endfor %}
+        ];
+
+        const searchInput = document.getElementById('searchInput');
+        const employeesList = document.getElementById('employeesList');
+        const initialState = document.getElementById('initialState');
+
+
         // Поиск сотрудников
-        document.getElementById('searchInput').addEventListener('input', function(e) {
-            const searchTerm = e.target.value.toLowerCase();
-            const employeeItems = document.querySelectorAll('.employee-item');
+        searchInput.addEventListener('input', function(e) {
+            const searchTerm = e.target.value.trim().toLowerCase();
             
-            employeeItems.forEach(item => {
-                const employeeName = item.getAttribute('data-name').toLowerCase();
-                if (employeeName.includes(searchTerm)) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
+            if (searchTerm.length < 3) {
+                showInitialState();
+                return;
+            }
+            
+            
+            // Фильтруем сотрудников
+            const filteredEmployees = employees.filter(employee => 
+                employee.name.toLowerCase().includes(searchTerm)
+            );
+            
+            displayEmployees(filteredEmployees, searchTerm);
         });
+
+        function showInitialState() {
+            employeesList.innerHTML = '';
+            employeesList.appendChild(initialState);
+            initialState.style.display = 'flex';
+        }
+
+        function displayEmployees(filteredEmployees, searchTerm) {
+            employeesList.innerHTML = '';
+            
+            if (filteredEmployees.length === 0) {
+                employeesList.innerHTML = `
+                    <div class="no-results">
+                        <div class="no-results-icon">😕</div>
+                        <h3>Сотрудники не найдены</h3>
+                        <p>По запросу "<strong>${searchTerm}</strong>" ничего не найдено</p>
+                        <p>Попробуйте изменить поисковый запрос</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            filteredEmployees.forEach(employee => {
+                const employeeItem = document.createElement('div');
+                employeeItem.className = 'employee-item';
+                employeeItem.innerHTML = `
+                    <a href="${employee.url}" class="employee-btn">
+                        <span class="employee-name">${employee.name}</span>
+                    </a>
+                `;
+                employeesList.appendChild(employeeItem);
+            });
+        }
 
         // Переключение отображения инструкций
         function toggleInstructions() {
             const content = document.getElementById('instruction-content');
-            const arrow = document.querySelector('.arrow');
+            const arrow = document.querySelector('.accordion-btn .arrow');
             
             if (content.style.display === 'block') {
                 content.style.display = 'none';
@@ -85,6 +136,7 @@
         // Скрыть инструкцию по умолчанию
         document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('instruction-content').style.display = 'none';
+            showInitialState();
         });
     </script>
 </body>

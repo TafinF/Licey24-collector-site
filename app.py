@@ -16,11 +16,18 @@ def get_password_hash(password):
 # Предварительно вычисляем хеш правильного пароля
 CORRECT_PASSWORD_HASH = get_password_hash(ADMIN_PASSWORD)
 
+
 # Загружаем данные сотрудников
 def load_employees():
-    with open('employees-for-login.json', 'r', encoding='utf-8') as f:
+    with open('employees.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
-    return data['employees']
+    
+    # Фильтруем сотрудников: оставляем только тех, у кого showInGeneralList = true
+    # Используем get() с значением по умолчанию True, чтобы сотрудники без этого поля тоже показывались
+    filtered_employees = [emp for emp in data['employees'] if emp.get('showInGeneralList', True)]
+    
+    print(f"Загружено сотрудников: {len(filtered_employees)} из {len(data['employees'])}")  # Для отладки
+    return filtered_employees
 
 EMPLOYEES = load_employees()
 
