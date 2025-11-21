@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔐 Вход в систему</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <h1>🔐 Авторизация</h1>
+        </div>
+
+        {% if error %}
+        <div class="error-message">
+            {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" class="login-form">
+            <div class="form-group">
+                <label for="password">🔑 Пароль:</label>
+                <input type="password" id="password" name="password" required 
+                       placeholder="Введите ваш пароль">
+            </div>
+
+            <div class="form-group">
+                <label for="encryption_key">🗝️ Ключ шифрования:</label>
+                <input type="password" id="encryption_key" name="encryption_key" 
+                       placeholder="Введите ключ шифрования">
+            </div>
+
+            <div class="accordion">
+                <button type="button" class="accordion-btn" onclick="toggleInstructions()">
+                    📋 Инструкции
+                    <span class="arrow">▼</span>
+                </button>
+                <div class="accordion-content" id="instruction-content">
+                    <div class="instruction-text">
+                        <p>1. Введите пароль, полученный от администратора</p>
+                        <p>2. Введите ключ шифрования (сохраняется локально)</p>
+                        <p>3. Нажмите кнопку "Вход"</p>
+                        <p>⚠️ <strong>Не перепутайте поля ввода!</strong></p>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="login-btn">🚀 Вход</button>
+        </form>
+    </div>
+
+    <script>
+        // Сохранение ключа в LocalStorage
+        document.getElementById('encryption_key').addEventListener('input', function(e) {
+            const key = e.target.value;
+            if (key) {
+                localStorage.setItem('key_2025_2026_trim2', key);
+                console.log('🔑 Ключ сохранен в LocalStorage');
+            }
+        });
+
+        // Загрузка ключа из LocalStorage при загрузке страницы
+        window.addEventListener('load', function() {
+            const savedKey = localStorage.getItem('key_2025_2026_trim2');
+            if (savedKey) {
+                document.getElementById('encryption_key').value = savedKey;
+            }
+        });
+
+        // Очистка LocalStorage при очистке поля ключа
+        document.getElementById('encryption_key').addEventListener('change', function(e) {
+            if (!e.target.value) {
+                localStorage.removeItem('key_2025_2026_trim2');
+            }
+        });
+
+        // Переключение отображения инструкций
+        function toggleInstructions() {
+            const content = document.getElementById('instruction-content');
+            const arrow = document.querySelector('.arrow');
+            
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+            }
+        }
+    </script>
+</body>
+</html>
