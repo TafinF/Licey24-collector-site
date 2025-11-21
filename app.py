@@ -1,9 +1,9 @@
 import os
 import hashlib
 import json
-from flask import Flask, request, render_template, redirect, url_for, make_response
+from flask import Flask, request, render_template, redirect, url_for, make_response, jsonify
 from urllib.parse import quote, unquote
-import re
+from datetime import datetime
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
@@ -178,7 +178,7 @@ def appearance():
 
 @app.route('/appearance/<class_name>')
 def appearance_class(class_name):
-    """Страница для отметки внешнего вида конкретного класса"""
+    """Страница для отметки нарушений внешнего вида конкретного класса"""
     # Декодируем название класса из URL
     decoded_class_name = unquote(class_name)
     
@@ -193,7 +193,9 @@ def appearance_class(class_name):
                 break
     
     # Получаем студентов класса
-    students = get_class_students(decoded_class_name)
+    students_data = get_class_students(decoded_class_name)
+    # Формируем список имен студентов в формате "Фамилия Имя"
+    students = [f"{student['lastName']} {student['firstName']}" for student in students_data]
     
     return render_template(
         'appearance_class.html',
@@ -204,15 +206,61 @@ def appearance_class(class_name):
 
 @app.route('/submit-appearance', methods=['POST'])
 def submit_appearance():
-    """Обработка отправки данных о внешнем виде"""
-    class_name = request.form.get('class_name')
-    appearance_data = request.form.to_dict()
+    """Обработка отправки данных о нарушениях внешнего вида"""
+    try:
+        data = request.get_json()
+        class_name = data.get('class_name')
+        violations = data.get('violations', {})
+        
+        print(f"Получены данные о нарушениях для класса {class_name}:")
+        for student, student_violations in violations.items():
+            if student_violations:
+                print(f"  {student}: {student_violations}")
+        
+        # Здесь будет логика сохранения в базу данных
+        # Пока просто возвращаем успех
+        
+        return jsonify({
+            'success': True,
+            'message': 'Данные успешно сохранены',
+            'class_name': class_name,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        })
+        
+    except Exception as e:
+        print(f"Ошибка при сохранении данных: {e}")
+        return jsonify({
+            'success': False,
+            'message': 'Ошибка при сохранении данных'
+        }), 500
+
+@app.route('/appearance-submission-success')
+def appearance_submission_success():
+    """Страница успешной отправки данных"""
+    class_name = request.args.get('class_name', '')
+    timestamp = request.args.get('timestamp', '')
     
-    # Здесь будет логика сохранения данных
-    # Пока просто редиректим обратно на страницу appearance
-    print(f"Получены данные для класса {class_name}: {appearance_data}")
+    # Получаем информацию о выбранном сотруднике
+    employee_id = request.cookies.get('employee_id')
+    selected_employee = None
     
-    return redirect(url_for('appearance'))
+    if employee_id:
+        for employee in EMPLOYEES:
+            if employee['id'] == int(employee_id):
+                selected_employee = employee
+                break
+    
+    # Здесь можно получить реальные данные о нарушениях из сессии или БД
+    # Пока используем заглушку
+    violations = {}
+    
+    return render_template(
+        'appearance_submission_success.html',
+        class_name=class_name,
+        timestamp=timestamp,
+        violations=violations,
+        selected_employee=selected_employee
+    )
 
 
 @app.route('/login', methods=['GET', 'POST'])

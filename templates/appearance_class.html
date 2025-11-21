@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Внешний вид - {{ class_name }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='appearance.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <a href="{{ url_for('appearance') }}" class="back-button">← Назад к выбору класса</a>
+                <div class="class-title">{{ class_name.replace('-', ' ') }} класс</div>
+                {% if selected_employee %}
+                <div class="teacher-info">
+                    {{ selected_employee.lastName }} {{ selected_employee.firstName }}
+                </div>
+                {% endif %}
+            </div>
+            
+            <div class="instructions">
+                <div class="instructions-header" onclick="toggleInstructions()">
+                    <span>Инструкция по использованию</span>
+                    <span id="instructionsIcon">▼</span>
+                </div>
+                <div class="instructions-content" id="instructionsContent">
+                    <ul>
+                        <li>Нажмите на ученика, чтобы добавить или изменить нарушения</li>
+                        <li>Выберите соответствующие нарушения в появившемся меню</li>
+                        <li>Нажмите "Сохранить" для подтверждения выбора</li>
+                        <li>Значки нарушений отображаются справа от имени ученика</li>
+                        <li>Нажмите "Отправить данные" внизу страницы для сохранения всех данных</li>
+                    </ul>
+                    <div style="margin-top: 10px; font-weight: 600;">Значки нарушений:</div>
+                    <ul>
+                        <li>🆔 - Нет значка</li>
+                        <li>👕 - Внешний вид не по уставу</li>
+                        <li>💇 - Волосы</li>
+                        <li>🏃 - Нет спорт формы</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <div class="student-list" id="studentList">
+            {% for student in students %}
+            <div class="student-item" onclick="openModal('{{ student }}')">
+                <div class="student-name">{{ student }}</div>
+                <div class="status" id="status-{{ loop.index0 }}">
+                    <span class="no-violations">✅</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="submit-section">
+            <button type="button" class="submit-button" onclick="submitData()">Отправить данные</button>
+        </div>
+    </div>
+    
+    <!-- Модальное окно для выбора нарушений -->
+    <div class="violation-modal" id="violationModal">
+        <div class="modal-content">
+            <h3 class="modal-title" id="modalTitle">Выберите нарушения для ученика</h3>
+            <div class="violation-options">
+                <label class="violation-option">
+                    <input type="checkbox" id="noBadge" name="violations" value="Нет значка">
+                    <span class="checkmark"></span>
+                    <span class="violation-label">
+                        <span class="violation-emoji">🆔</span>
+                        Нет значка
+                    </span>
+                </label>
+                <label class="violation-option">
+                    <input type="checkbox" id="uniformViolation" name="violations" value="Внешний вид не по уставу">
+                    <span class="checkmark"></span>
+                    <span class="violation-label">
+                        <span class="violation-emoji">👕</span>
+                        Внешний вид не по уставу
+                    </span>
+                </label>
+                <label class="violation-option">
+                    <input type="checkbox" id="hairViolation" name="violations" value="Волосы">
+                    <span class="checkmark"></span>
+                    <span class="violation-label">
+                        <span class="violation-emoji">💇</span>
+                        Волосы
+                    </span>
+                </label>
+                <label class="violation-option">
+                    <input type="checkbox" id="noSportswear" name="violations" value="Нет спорт формы">
+                    <span class="checkmark"></span>
+                    <span class="violation-label">
+                        <span class="violation-emoji">🏃</span>
+                        Нет спорт формы
+                    </span>
+                </label>
+            </div>
+            <div class="modal-buttons">
+                <button type="button" class="cancel-button" onclick="closeModal()">Отмена</button>
+                <button type="button" class="save-button" onclick="saveViolations()">Сохранить</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Храним данные о нарушениях локально
+        const violationsData = {};
+        let currentStudent = null;
+        const students = {{ students|tojson }};
+        const class_name = "{{ class_name }}";
+
+        // Инициализация данных для каждого ученика
+        students.forEach(student => {
+            violationsData[student] = [];
+        });
+
+        function openModal(studentName) {
+            currentStudent = studentName;
+            document.getElementById('modalTitle').textContent = `Выберите нарушения для ${studentName}`;
+            
+            // Сбросить все чекбоксы
+            document.querySelectorAll('.violation-options input[type="checkbox"]').forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            
+            // Установить текущие нарушения ученика
+            violationsData[studentName].forEach(violation => {
+                const checkbox = document.querySelector(`input[value="${violation}"]`);
+                if (checkbox) {
+                    checkbox.checked = true;
+                }
+            });
+            
+            document.getElementById('violationModal').style.display = 'flex';
+        }
+        
+        function closeModal() {
+            document.getElementById('violationModal').style.display = 'none';
+            currentStudent = null;
+        }
+        
+        function saveViolations() {
+            if (currentStudent === null) return;
+            
+            // Собираем выбранные нарушения
+            const selectedViolations = [];
+            document.querySelectorAll('.violation-options input[type="checkbox"]:checked').forEach(checkbox => {
+                selectedViolations.push(checkbox.value);
+            });
+            
+            // Сохраняем в локальные данные
+            violationsData[currentStudent] = selectedViolations;
+            
+            // Обновляем отображение
+            updateStudentDisplay(currentStudent);
+            
+            closeModal();
+        }
+        
+        function updateStudentDisplay(studentName) {
+            const studentIndex = students.indexOf(studentName);
+            const statusElement = document.getElementById(`status-${studentIndex}`);
+            const violations = violationsData[studentName];
+            
+            if (violations.length === 0) {
+                statusElement.innerHTML = '<span class="no-violations">✅</span>';
+            } else {
+                let iconsHtml = '';
+                violations.forEach(violation => {
+                    let emoji = '';
+                    if (violation === 'Нет значка') emoji = '🆔';
+                    else if (violation === 'Внешний вид не по уставу') emoji = '👕';
+                    else if (violation === 'Волосы') emoji = '💇';
+                    else if (violation === 'Нет спорт формы') emoji = '🏃';
+                    
+                    iconsHtml += `<span class="violation-icon" title="${violation}">${emoji}</span>`;
+                });
+                
+                statusElement.innerHTML = iconsHtml + `<span class="violation-count">${violations.length}</span>`;
+            }
+        }
+        
+        async function submitData() {
+            // Проверяем, есть ли данные для отправки
+            const hasViolations = Object.values(violationsData).some(violations => violations.length > 0);
+            
+            if (!hasViolations) {
+                if (!confirm('Нет данных о нарушениях для отправки. Отправить пустой отчет?')) {
+                    return;
+                }
+            }
+            
+            try {
+                const response = await fetch('/submit-appearance', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        class_name: class_name,
+                        violations: violationsData
+                    })
+                });
+                
+                const result = await response.json();
+                
+                if (result.success) {
+                    // Перенаправляем на страницу успеха
+                    window.location.href = `/appearance-submission-success?class_name=${encodeURIComponent(class_name)}&timestamp=${encodeURIComponent(result.timestamp)}`;
+                } else {
+                    alert('Ошибка при отправке данных: ' + result.message);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('Ошибка при отправке данных');
+            }
+        }
+        
+        function toggleInstructions() {
+            const content = document.getElementById('instructionsContent');
+            const icon = document.getElementById('instructionsIcon');
+            
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                icon.textContent = '▼';
+            } else {
+                content.style.display = 'block';
+                icon.textContent = '▲';
+            }
+        }
+        
+        // Закрытие модального окна при клике вне его
+        window.onclick = function(event) {
+            const modal = document.getElementById('violationModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('Страница нарушений внешнего вида загружена');
+        });
+    </script>
+</body>
+</html>
