@@ -7,87 +7,130 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-header">
-            <h1>🔐 Авторизация</h1>
-        </div>
-
-        {% if error %}
-        <div class="error-message">
-            {{ error }}
-        </div>
-        {% endif %}
-
-        <form method="POST" class="login-form">
-            <div class="form-group">
-                <label for="password">🔑 Пароль:</label>
-                <input type="password" id="password" name="password" required 
-                       placeholder="Введите ваш пароль">
+    <div class="background"></div>
+    <div class="container">
+        <div class="login-card">
+            <div class="card-header">
+                <div class="logo">🔐</div>
+                <h1>Авторизация</h1>
             </div>
 
-            <div class="form-group">
-                <label for="encryption_key">🗝️ Ключ шифрования:</label>
-                <input type="password" id="encryption_key" name="encryption_key" 
-                       placeholder="Введите ключ шифрования">
+            {% if error %}
+            <div class="error-message">
+                <div class="error-icon">⚠️</div>
+                {{ error }}
             </div>
+            {% endif %}
 
-            <div class="accordion">
-                <button type="button" class="accordion-btn" onclick="toggleInstructions()">
-                    📋 Инструкции
-                    <span class="arrow">▼</span>
-                </button>
-                <div class="accordion-content" id="instruction-content">
-                    <div class="instruction-text">
-                        <p>1. Введите пароль, полученный от администратора</p>
-                        <p>2. Введите ключ шифрования (сохраняется локально)</p>
-                        <p>3. Нажмите кнопку "Вход"</p>
-                        <p>⚠️ <strong>Не перепутайте поля ввода!</strong></p>
+            <form method="POST" class="login-form">
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="password" id="password" name="password" required 
+                               class="modern-input">
+                        <label for="password" class="floating-label">🔑 Пароль</label>
+                        <div class="input-icon">🔑</div>
                     </div>
                 </div>
-            </div>
 
-            <button type="submit" class="login-btn">🚀 Вход</button>
-        </form>
+                <div class="input-group">
+                    <div class="input-wrapper">
+                        <input type="password" id="encryption_key" name="encryption_key"
+                               class="modern-input">
+                        <label for="encryption_key" class="floating-label">🗝️ Ключ шифрования</label>
+                        <div class="input-icon">🗝️</div>
+                    </div>
+                </div>
+
+                <div class="accordion-section">
+                    <button type="button" class="accordion-toggle" id="accordion-toggle">
+                        <span class="accordion-title">
+                            <span class="accordion-icon">📋</span>
+                            Инструкции
+                        </span>
+                        <span class="accordion-arrow">▼</span>
+                    </button>
+                    <div class="accordion-content" id="accordion-content">
+                        <div class="instruction-list">
+                            <div class="instruction-item">
+                                <span class="instruction-number">1</span>
+                                <span>Введите пароль, полученный от администратора</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="instruction-number">2</span>
+                                <span>Введите ключ шифрования (сохраняется локально)</span>
+                            </div>
+                            <div class="instruction-item">
+                                <span class="instruction-number">3</span>
+                                <span>Нажмите кнопку "Вход"</span>
+                            </div>
+                            <div class="instruction-warning">
+                                <span class="warning-icon">⚠️</span>
+                                <span>Не перепутайте поля ввода!</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">
+                    <span class="btn-text">🚀 Вход</span>
+                    <div class="btn-loader"></div>
+                </button>
+            </form>
+        </div>
     </div>
 
     <script>
-        // Сохранение ключа в LocalStorage
-        document.getElementById('encryption_key').addEventListener('input', function(e) {
-            const key = e.target.value;
-            if (key) {
-                localStorage.setItem('key_2025_2026_trim2', key);
-                console.log('🔑 Ключ сохранен в LocalStorage');
+        // Floating labels functionality
+        document.querySelectorAll('.modern-input').forEach(input => {
+            // Check if input has value on load
+            if (input.value) {
+                input.parentElement.classList.add('filled');
             }
+            
+            input.addEventListener('focus', () => {
+                input.parentElement.classList.add('focused');
+            });
+            
+            input.addEventListener('blur', () => {
+                if (!input.value) {
+                    input.parentElement.classList.remove('focused');
+                }
+                input.parentElement.classList.toggle('filled', input.value !== '');
+            });
         });
 
-        // Загрузка ключа из LocalStorage при загрузке страницы
+        // Accordion functionality
+        const accordionToggle = document.getElementById('accordion-toggle');
+        const accordionContent = document.getElementById('accordion-content');
+        
+        accordionToggle.addEventListener('click', () => {
+            const isOpen = accordionContent.classList.toggle('open');
+            const arrow = accordionToggle.querySelector('.accordion-arrow');
+            arrow.textContent = isOpen ? '▲' : '▼';
+            accordionToggle.classList.toggle('active', isOpen);
+        });
+
+        // Save encryption key to localStorage
+        document.getElementById('encryption_key').addEventListener('input', function(e) {
+            const key = e.target.value;
+            localStorage.setItem('key_2025_2026_trim2', key);
+        });
+
+        // Load encryption key from localStorage
         window.addEventListener('load', function() {
             const savedKey = localStorage.getItem('key_2025_2026_trim2');
             if (savedKey) {
-                document.getElementById('encryption_key').value = savedKey;
+                const input = document.getElementById('encryption_key');
+                input.value = savedKey;
+                input.parentElement.classList.add('filled');
             }
         });
 
-        // Очистка LocalStorage при очистке поля ключа
-        document.getElementById('encryption_key').addEventListener('change', function(e) {
-            if (!e.target.value) {
-                localStorage.removeItem('key_2025_2026_trim2');
-            }
+        // Form submission loading state
+        document.querySelector('.login-form').addEventListener('submit', function(e) {
+            const submitBtn = this.querySelector('.submit-btn');
+            submitBtn.classList.add('loading');
         });
-
-        // Переключение отображения инструкций
-        function toggleInstructions() {
-            const content = document.getElementById('instruction-content');
-            const arrow = document.querySelector('.arrow');
-            
-            if (content.style.display === 'block') {
-                content.style.display = 'none';
-                arrow.textContent = '▼';
-            } else {
-                content.style.display = 'block';
-                arrow.textContent = '▲';
-            }
-        }
     </script>
 </body>
 </html>

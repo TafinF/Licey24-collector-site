@@ -2,9 +2,7 @@ import os
 import hashlib
 from flask import Flask, request, render_template, redirect, url_for, make_response
 
-app = Flask(__name__)
-# Секретный ключ нужен для работы с сессиями Flask
-# В продакшене должен быть установлен через переменные окружения
+app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
 
 # Получаем пароль из переменных окружения
@@ -20,6 +18,9 @@ CORRECT_PASSWORD_HASH = get_password_hash(ADMIN_PASSWORD)
 @app.before_request
 def check_authentication():
     """Проверка аутентификации для всех запросов"""
+    # Разрешаем доступ к статическим файлам без аутентификации
+    if request.endpoint == 'static':
+        return
     # Исключаем страницу входа из проверки
     if request.endpoint == 'login':
         return
@@ -80,9 +81,9 @@ def login():
             response.set_cookie(
                 'password_hash', 
                 password_hash, 
-                max_age=90*24*60*60,  # 90 дней в секундах
+                max_age=90*24*60*60,
                 httponly=True,
-                secure=True,  # Только HTTPS
+                secure=True,
                 samesite='Lax'
             )
             return response
