@@ -2,6 +2,7 @@ import os
 import hashlib
 import json
 from flask import Flask, request, render_template, redirect, url_for, make_response
+from urllib.parse import quote, unquote
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
 app.secret_key = os.environ.get('SECRET_KEY', 'dev-secret-key')
@@ -99,6 +100,28 @@ def clear_employee():
     response = make_response(redirect(url_for('employees')))
     response.set_cookie('employee_id', '', expires=0)
     return response
+
+
+@app.route('/missing/<class_name>')
+def missing_students(class_name):
+    """Страница для отметки отсутствующих студентов"""
+    # Декодируем название класса из URL
+    decoded_class_name = unquote(class_name)
+    
+    # Проверяем, что у выбранного сотрудника есть этот класс
+    employee_id = request.cookies.get('employee_id')
+    if employee_id:
+        for employee in EMPLOYEES:
+            if employee['id'] == int(employee_id) and employee.get('classSupervision') == decoded_class_name:
+                return f"Страница для отметки отсутствующих в классе {decoded_class_name}"
+    
+    return redirect(url_for('index'))
+
+@app.route('/appearance')
+def appearance():
+    """Страница для отметки внешнего вида"""
+    return "Страница для отметки внешнего вида"
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

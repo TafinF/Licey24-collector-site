@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app.py .
 COPY templates/ templates/
 COPY static/ static/
-COPY employees-for-login.json .
+COPY employees.json .
 
 # Создаем непривилегированного пользователя для безопасности
 RUN useradd -m -u 1000 appuser && \

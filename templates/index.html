@@ -3,39 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная страница</title>
+    <title>Ковёр :)</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>🎉 Добро пожаловать!</h1>
-            {% if selected_employee %}
-            <div class="employee-info">
-                <h3>👤 Выбранный сотрудник:</h3>
-                <p><strong>{{ selected_employee.lastName }} {{ selected_employee.firstName }} {{ selected_employee.middleName }}</strong></p>
-            </div>
-            {% endif %}
-        </div>
-        
-        <div class="success">✅ Вы успешно авторизованы!</div>
-        
-        <div class="info">
-            <h3>📊 Доступные функции:</h3>
-            <ul>
-                <li>Просмотр защищенных данных</li>
-                <li>Работа с системой</li>
-                <li>Доступ к инструментам</li>
-            </ul>
-        </div>
+        <!-- Хедер -->
+        <header class="main-header">
+            <h1>Ковёр :)</h1>
+        </header>
 
-        <div class="actions">
-            <a href="/employees" class="btn btn-primary">👥 Выбрать сотрудника</a>
-            {% if selected_employee %}
-            <a href="/clear-employee" class="btn btn-secondary">❌ Очистить выбор</a>
-            {% endif %}
-            <a href="/logout" class="btn btn-logout">🚪 Выйти</a>
-        </div>
+        <!-- Основное содержимое -->
+        <main class="main-content">
+            <div class="content-header">
+                <h2>Передать сведения</h2>
+            </div>
+            
+            <div class="actions-grid">
+                {% if selected_employee and selected_employee.classSupervision != 'нет' %}
+                <a href="/missing/{{ selected_employee.classSupervision|urlencode }}" class="action-btn btn-primary">
+                    📋 Отсутствующие {{ selected_employee.classSupervision }}
+                </a>
+                {% endif %}
+                
+                <a href="/appearance" class="action-btn btn-secondary">
+                    👔 Внешний вид
+                </a>
+            </div>
+        </main>
+
+        <!-- Футер -->
+        <footer class="main-footer">
+            <div class="footer-content">
+                <div class="employee-info">
+                    👤 {{ selected_employee.lastName }} {{ selected_employee.firstName }} {{ selected_employee.middleName }}
+                </div>
+                <a href="/logout" class="btn btn-logout">🚪 Выйти</a>
+            </div>
+        </footer>
     </div>
 </body>
 </html>
