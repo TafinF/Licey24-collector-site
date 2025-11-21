@@ -1,5 +1,6 @@
 import os
 import hashlib
+import json
 from flask import Flask, request, render_template, redirect, url_for, make_response
 
 app = Flask(__name__, static_folder='static', static_url_path='/static')
@@ -14,6 +15,14 @@ def get_password_hash(password):
 
 # Предварительно вычисляем хеш правильного пароля
 CORRECT_PASSWORD_HASH = get_password_hash(ADMIN_PASSWORD)
+
+# Загружаем данные сотрудников
+def load_employees():
+    with open('employees-for-login.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    return data['employees']
+
+EMPLOYEES = load_employees()
 
 @app.before_request
 def check_authentication():
@@ -38,32 +47,51 @@ def robots():
 @app.route('/')
 def index():
     """Главная страница (только для аутентифицированных пользователей)"""
-    return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Главная страница</title>
-        <style>
-            body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-            .success { color: green; font-size: 18px; margin: 20px 0; }
-            .info { background: #f0f8ff; padding: 15px; border-radius: 5px; margin: 20px 0; }
-        </style>
-    </head>
-    <body>
-        <h1>🎉 Добро пожаловать!</h1>
-        <div class="success">✅ Вы успешно авторизованы!</div>
-        <div class="info">
-            <h3>📊 Доступные функции:</h3>
-            <ul>
-                <li>Просмотр защищенных данных</li>
-                <li>Работа с системой</li>
-                <li>Доступ к инструментам</li>
-            </ul>
-        </div>
-        <a href="/logout" style="color: blue; text-decoration: none;">🚪 Выйти</a>
-    </body>
-    </html>
-    '''
+    # Получаем ID выбранного сотрудника из куки
+    employee_id = request.cookies.get('employee_id')
+    selected_employee = None
+    
+    if employee_id:
+        for employee in EMPLOYEES:
+            if employee['id'] == int(employee_id):
+                selected_employee = employee
+                break
+    
+    return render_template('index.html', selected_employee=selected_employee)
+
+@app.route('/employees')
+def employees():
+    """Страница выбора сотрудника"""
+    return render_template('employees.html', employees=EMPLOYEES)
+
+@app.route('/select-employee/<int:employee_id>')
+def select_employee(employee_id):
+    """Выбор сотрудника и редирект на главную"""
+    # Проверяем существование сотрудника
+    employee_exists = any(emp['id'] == employee_id for emp in EMPLOYEES)
+    
+    if not employee_exists:
+        return redirect(url_for('employees'))
+    
+    # Создаем ответ с редиректом на главную
+    response = make_response(redirect(url_for('index')))
+    # Устанавливаем куку с ID сотрудника на 3 месяца (90 дней)
+    response.set_cookie(
+        'employee_id', 
+        str(employee_id), 
+        max_age=90*24*60*60,
+        httponly=True,
+        secure=True,
+        samesite='Lax'
+    )
+    return response
+
+@app.route('/clear-employee')
+def clear_employee():
+    """Очистка выбранного сотрудника"""
+    response = make_response(redirect(url_for('employees')))
+    response.set_cookie('employee_id', '', expires=0)
+    return response
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -79,8 +107,8 @@ def login():
         
         # Проверяем пароль
         if password_hash == CORRECT_PASSWORD_HASH:
-            # Создаем ответ с редиректом
-            response = make_response(redirect(url_for('index')))
+            # Создаем ответ с редиректом на страницу сотрудников
+            response = make_response(redirect(url_for('employees')))
             # Устанавливаем куку с хешем пароля на 3 месяца (90 дней)
             response.set_cookie(
                 'password_hash', 
@@ -101,6 +129,7 @@ def logout():
     """Выход из системы"""
     response = make_response(redirect(url_for('login')))
     response.set_cookie('password_hash', '', expires=0)
+    response.set_cookie('employee_id', '', expires=0)
     return response
 
 if __name__ == '__main__':

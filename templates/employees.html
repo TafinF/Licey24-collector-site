@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Выбор сотрудника</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>👥 Выбор сотрудника</h1>
+            <p>Выберите сотрудника из списка ниже</p>
+        </div>
+
+        <!-- Поиск -->
+        <div class="search-container">
+            <input type="text" id="searchInput" placeholder="🔍 Поиск сотрудника..." class="search-input">
+        </div>
+
+        <!-- Аккордеон с инструкцией -->
+        <div class="accordion">
+            <button type="button" class="accordion-btn" onclick="toggleInstructions()">
+                📋 Инструкция по выбору сотрудника
+                <span class="arrow">▼</span>
+            </button>
+            <div class="accordion-content" id="instruction-content">
+                <div class="instruction-text">
+                    <p>1. Используйте поле поиска для быстрого нахождения сотрудника</p>
+                    <p>2. Нажмите на кнопку с ФИО сотрудника для выбора</p>
+                    <p>3. После выбора вы будете перенаправлены на главную страницу</p>
+                    <p>4. Выбранный сотрудник будет отображаться на главной странице</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Список сотрудников -->
+        <div class="employees-list" id="employeesList">
+            {% for employee in employees %}
+            <div class="employee-item" data-name="{{ employee.lastName }} {{ employee.firstName }} {{ employee.middleName }}">
+                <a href="{{ url_for('select_employee', employee_id=employee.id) }}" class="employee-btn">
+                    <span class="employee-name">{{ employee.lastName }} {{ employee.firstName }} {{ employee.middleName }}</span>
+                    <span class="employee-id">ID: {{ employee.id }}</span>
+                </a>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="actions">
+            <a href="/" class="btn btn-secondary">← На главную</a>
+            <a href="/logout" class="btn btn-logout">🚪 Выйти</a>
+        </div>
+    </div>
+
+    <script>
+        // Поиск сотрудников
+        document.getElementById('searchInput').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const employeeItems = document.querySelectorAll('.employee-item');
+            
+            employeeItems.forEach(item => {
+                const employeeName = item.getAttribute('data-name').toLowerCase();
+                if (employeeName.includes(searchTerm)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        });
+
+        // Переключение отображения инструкций
+        function toggleInstructions() {
+            const content = document.getElementById('instruction-content');
+            const arrow = document.querySelector('.arrow');
+            
+            if (content.style.display === 'block') {
+                content.style.display = 'none';
+                arrow.textContent = '▼';
+            } else {
+                content.style.display = 'block';
+                arrow.textContent = '▲';
+            }
+        }
+
+        // Скрыть инструкцию по умолчанию
+        document.addEventListener('DOMContentLoaded', function() {
+            document.getElementById('instruction-content').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
