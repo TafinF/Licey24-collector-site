@@ -4,41 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Данные отправлены</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='appearance.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='appearance_pages.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-top">
-                <a href="{{ url_for('appearance') }}" class="back-button">← Выбрать другой класс</a>
-                <div class="page-title">Данные успешно отправлены!</div>
+    <div class="appearance-container">
+        <div class="appearance-header">
+            <div class="appearance-header-top">
+                <div class="appearance-page-title">Данные успешно отправлены!</div>
                 {% if selected_employee %}
-                <div class="teacher-info">
+                <div class="appearance-teacher-info">
                     {{ selected_employee.lastName }} {{ selected_employee.firstName }}
                 </div>
                 {% endif %}
             </div>
         </div>
         
-        <div class="success-content">
-            <div class="success-icon">✅</div>
+        <div class="appearance-success-content">
+            <div class="appearance-success-icon">✅</div>
             <h2>Данные о нарушениях внешнего вида успешно сохранены</h2>
-            <div class="submission-info">
+            <div class="appearance-submission-info">
                 <p><strong>Класс:</strong> {{ class_name }}</p>
                 <p><strong>Время отправки:</strong> {{ timestamp }}</p>
             </div>
             
-            <div class="violations-summary">
+            <div class="appearance-violations-summary">
                 <h3>Отправленные данные:</h3>
                 {% if violations %}
-                    <div class="violations-list">
-                        {% for student, student_violations in violations.items() %}
+                    <div class="appearance-violations-list">
+                        {% for student_id, student_violations in violations.items() %}
                             {% if student_violations %}
-                            <div class="student-violations">
-                                <div class="student-name">{{ student }}</div>
-                                <div class="violations">
+                            <div class="appearance-student-violations">
+                                <div class="appearance-student-name">ID: {{ student_id }}</div>
+                                <div class="appearance-violations">
                                     {% for violation in student_violations %}
-                                    <span class="violation-badge">
+                                    <span class="appearance-violation-badge">
                                         {% if violation == 'Нет значка' %}🆔
                                         {% elif violation == 'Внешний вид не по уставу' %}👕
                                         {% elif violation == 'Волосы' %}💇
@@ -53,13 +52,12 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <p class="no-violations-message">Нарушений не зафиксировано</p>
+                    <p class="appearance-no-violations-message">Нарушений не зафиксировано</p>
                 {% endif %}
             </div>
             
-            <div class="action-buttons">
-                <a href="{{ url_for('appearance') }}" class="submit-button">Выбрать другой класс</a>
-                <a href="{{ url_for('appearance_class', class_name=class_name) }}" class="cancel-button">Вернуться к этому классу</a>
+            <div class="appearance-action-buttons">
+                <a href="{{ url_for('index') }}" class="appearance-submit-button">На главную</a>
             </div>
         </div>
     </div>

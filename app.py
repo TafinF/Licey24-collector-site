@@ -18,34 +18,90 @@ def get_password_hash(password):
 # Предварительно вычисляем хеш правильного пароля
 CORRECT_PASSWORD_HASH = get_password_hash(ADMIN_PASSWORD)
 
-
 # Загружаем данные сотрудников
 def load_employees():
     with open('employees.json', 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Фильтруем сотрудников: оставляем только тех, у кого showInGeneralList = true
-    # Используем get() с значением по умолчанию True, чтобы сотрудники без этого поля тоже показывались
     filtered_employees = [emp for emp in data['employees'] if emp.get('showInGeneralList', True)]
-    
-    print(f"Загружено сотрудников: {len(filtered_employees)} из {len(data['employees'])}")  # Для отладки
+    print(f"Загружено сотрудников: {len(filtered_employees)} из {len(data['employees'])}")
     return filtered_employees
 
 EMPLOYEES = load_employees()
 
+def load_classes():
+    """Загрузка и сортировка классов из student.json"""
+    with open('student.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    classes = []
+    for class_info in data['classes']:
+        classes.append({
+            'name': class_info['name'],
+            'building': class_info['building']
+        })
+    
+    def class_sort_key(cls):
+        class_num = cls['name'].split('-')[0]
+        try:
+            num = int(class_num)
+        except ValueError:
+            num = float('inf')
+        return (cls['building'], num)
+    
+    classes.sort(key=class_sort_key)
+    return classes
+
+def get_class_students(class_name):
+    """Получение списка студентов для указанного класса"""
+    with open('student.json', 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    for class_info in data['classes']:
+        if class_info['name'] == class_name:
+            return class_info['students']
+    return []
+
+def save_violations_data(class_name, violations_data, employee_info=None):
+    """Сохранение данных о нарушениях в файл"""
+    try:
+        # Создаем папку с сегодняшней датой
+        today = datetime.now().strftime('%Y-%m-%d')
+        os.makedirs(f'violations_data/{today}', exist_ok=True)
+        
+        # Создаем имя файла
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f'{timestamp}_{class_name}.json'
+        filepath = f'violations_data/{today}/{filename}'
+        
+        # Формируем данные для сохранения
+        data_to_save = {
+            'class_name': class_name,
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'violations': violations_data,
+            'employee': employee_info
+        }
+        
+        # Сохраняем в файл
+        with open(filepath, 'w', encoding='utf-8') as f:
+            json.dump(data_to_save, f, ensure_ascii=False, indent=2)
+        
+        print(f"Данные сохранены в файл: {filepath}")
+        return data_to_save
+        
+    except Exception as e:
+        print(f"Ошибка при сохранении данных: {e}")
+        return None
+
 @app.before_request
 def check_authentication():
     """Проверка аутентификации для всех запросов"""
-    # Разрешаем доступ к статическим файлам без аутентификации
     if request.endpoint == 'static':
         return
-    # Исключаем страницу входа из проверки
     if request.endpoint == 'login':
         return
     
-    # Проверяем хеш пароля в куках
     password_hash = request.cookies.get('password_hash')
-    
     if password_hash != CORRECT_PASSWORD_HASH:
         return redirect(url_for('login'))
 
@@ -55,8 +111,7 @@ def robots():
 
 @app.route('/')
 def index():
-    """Главная страница (только для аутентифицированных пользователей)"""
-    # Получаем ID выбранного сотрудника из куки
+    """Главная страница"""
     employee_id = request.cookies.get('employee_id')
     selected_employee = None
     
@@ -76,15 +131,12 @@ def employees():
 @app.route('/select-employee/<int:employee_id>')
 def select_employee(employee_id):
     """Выбор сотрудника и редирект на главную"""
-    # Проверяем существование сотрудника
     employee_exists = any(emp['id'] == employee_id for emp in EMPLOYEES)
     
     if not employee_exists:
         return redirect(url_for('employees'))
     
-    # Создаем ответ с редиректом на главную
     response = make_response(redirect(url_for('index')))
-    # Устанавливаем куку с ID сотрудника на 3 месяца (90 дней)
     response.set_cookie(
         'employee_id', 
         str(employee_id), 
@@ -102,62 +154,9 @@ def clear_employee():
     response.set_cookie('employee_id', '', expires=0)
     return response
 
-
-@app.route('/missing/<class_name>')
-def missing_students(class_name):
-    """Страница для отметки отсутствующих студентов"""
-    # Декодируем название класса из URL
-    decoded_class_name = unquote(class_name)
-    
-    # Проверяем, что у выбранного сотрудника есть этот класс
-    employee_id = request.cookies.get('employee_id')
-    if employee_id:
-        for employee in EMPLOYEES:
-            if employee['id'] == int(employee_id) and employee.get('classSupervision') == decoded_class_name:
-                return f"Страница для отметки отсутствующих в классе {decoded_class_name}"
-    
-    return redirect(url_for('index'))
-
-def load_classes():
-    """Загрузка и сортировка классов из student.json"""
-    with open('student.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    classes = []
-    for class_info in data['classes']:
-        classes.append({
-            'name': class_info['name'],
-            'building': class_info['building']
-        })
-    
-    # Сортировка классов: сначала по зданию, затем по номеру класса
-    def class_sort_key(cls):
-        # Извлекаем номер класса (все, что до дефиса)
-        class_num = cls['name'].split('-')[0]
-        # Преобразуем в число, если возможно, иначе оставляем как есть
-        try:
-            num = int(class_num)
-        except ValueError:
-            num = float('inf')  # Классы без чисел идут в конец
-        return (cls['building'], num)
-    
-    classes.sort(key=class_sort_key)
-    return classes
-
-def get_class_students(class_name):
-    """Получение списка студентов для указанного класса"""
-    with open('student.json', 'r', encoding='utf-8') as f:
-        data = json.load(f)
-    
-    for class_info in data['classes']:
-        if class_info['name'] == class_name:
-            return class_info['students']
-    return []
-
 @app.route('/appearance')
 def appearance():
     """Страница для отметки внешнего вида - выбор класса"""
-    # Получаем информацию о выбранном сотруднике
     employee_id = request.cookies.get('employee_id')
     selected_employee = None
     
@@ -167,7 +166,6 @@ def appearance():
                 selected_employee = employee
                 break
     
-    # Загружаем и сортируем классы
     classes = load_classes()
     
     return render_template(
@@ -179,10 +177,8 @@ def appearance():
 @app.route('/appearance/<class_name>')
 def appearance_class(class_name):
     """Страница для отметки нарушений внешнего вида конкретного класса"""
-    # Декодируем название класса из URL
     decoded_class_name = unquote(class_name)
     
-    # Получаем информацию о выбранном сотруднике
     employee_id = request.cookies.get('employee_id')
     selected_employee = None
     
@@ -192,15 +188,13 @@ def appearance_class(class_name):
                 selected_employee = employee
                 break
     
-    # Получаем студентов класса
+    # Получаем студентов класса с ID
     students_data = get_class_students(decoded_class_name)
-    # Формируем список имен студентов в формате "Фамилия Имя"
-    students = [f"{student['lastName']} {student['firstName']}" for student in students_data]
     
     return render_template(
         'appearance_class.html',
         class_name=decoded_class_name,
-        students=students,
+        students=students_data,  # Теперь передаем полные данные студентов
         selected_employee=selected_employee
     )
 
@@ -213,19 +207,40 @@ def submit_appearance():
         violations = data.get('violations', {})
         
         print(f"Получены данные о нарушениях для класса {class_name}:")
-        for student, student_violations in violations.items():
+        for student_id, student_violations in violations.items():
             if student_violations:
-                print(f"  {student}: {student_violations}")
+                print(f"  ID {student_id}: {student_violations}")
         
-        # Здесь будет логика сохранения в базу данных
-        # Пока просто возвращаем успех
+        # Получаем информацию о сотруднике
+        employee_id = request.cookies.get('employee_id')
+        employee_info = None
+        if employee_id:
+            for employee in EMPLOYEES:
+                if employee['id'] == int(employee_id):
+                    employee_info = {
+                        'id': employee['id'],
+                        'lastName': employee['lastName'],
+                        'firstName': employee['firstName'],
+                        'middleName': employee.get('middleName', '')
+                    }
+                    break
         
-        return jsonify({
-            'success': True,
-            'message': 'Данные успешно сохранены',
-            'class_name': class_name,
-            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-        })
+        # Сохраняем данные в файл
+        saved_data = save_violations_data(class_name, violations, employee_info)
+        
+        if saved_data:
+            return jsonify({
+                'success': True,
+                'message': 'Данные успешно сохранены',
+                'class_name': class_name,
+                'timestamp': saved_data['timestamp'],
+                'violations': violations
+            })
+        else:
+            return jsonify({
+                'success': False,
+                'message': 'Ошибка при сохранении данных'
+            }), 500
         
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
@@ -239,6 +254,13 @@ def appearance_submission_success():
     """Страница успешной отправки данных"""
     class_name = request.args.get('class_name', '')
     timestamp = request.args.get('timestamp', '')
+    violations_json = request.args.get('violations', '{}')
+    
+    # Парсим нарушения из JSON строки
+    try:
+        violations = json.loads(violations_json)
+    except:
+        violations = {}
     
     # Получаем информацию о выбранном сотруднике
     employee_id = request.cookies.get('employee_id')
@@ -250,10 +272,6 @@ def appearance_submission_success():
                 selected_employee = employee
                 break
     
-    # Здесь можно получить реальные данные о нарушениях из сессии или БД
-    # Пока используем заглушку
-    violations = {}
-    
     return render_template(
         'appearance_submission_success.html',
         class_name=class_name,
@@ -261,7 +279,6 @@ def appearance_submission_success():
         violations=violations,
         selected_employee=selected_employee
     )
-
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -272,14 +289,10 @@ def login():
         if not password:
             return render_template('login.html', error='❌ Пожалуйста, введите пароль')
         
-        # Получаем хеш введенного пароля
         password_hash = get_password_hash(password)
         
-        # Проверяем пароль
         if password_hash == CORRECT_PASSWORD_HASH:
-            # Создаем ответ с редиректом на страницу сотрудников
             response = make_response(redirect(url_for('employees')))
-            # Устанавливаем куку с хешем пароля на 3 месяца (90 дней)
             response.set_cookie(
                 'password_hash', 
                 password_hash, 
@@ -303,4 +316,6 @@ def logout():
     return response
 
 if __name__ == '__main__':
+    # Создаем папку для данных если её нет
+    os.makedirs('violations_data', exist_ok=True)
     app.run(host='0.0.0.0', port=5000, debug=False)

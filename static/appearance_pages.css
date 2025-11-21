@@ -1,0 +1,481 @@
+/* Стили для страниц appearance (нарушения внешнего вида) */
+.appearance-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 15px;
+    font-family: Arial, sans-serif;
+}
+
+.appearance-header {
+    margin-bottom: 20px;
+}
+
+.appearance-header-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.appearance-back-button {
+    padding: 10px 16px;
+    background-color: #6c757d;
+    color: white;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s ease;
+    font-size: 14px;
+}
+
+.appearance-back-button:hover {
+    background-color: #5a6268;
+}
+
+.appearance-class-title, .appearance-page-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    text-align: center;
+    flex-grow: 1;
+}
+
+.appearance-teacher-info {
+    font-size: 14px;
+    color: #666;
+    font-style: italic;
+}
+
+.appearance-instructions {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 20px;
+}
+
+.appearance-instructions-header {
+    cursor: pointer;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: #e9ecef;
+    border-radius: 5px;
+}
+
+.appearance-instructions-content {
+    display: none;
+    padding: 15px 10px 0 10px;
+}
+
+.appearance-instructions-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.appearance-instructions-content li {
+    margin-bottom: 8px;
+    line-height: 1.4;
+}
+
+/* Стили для списка студентов - ОДНА СТРОКА НА ЧЕЛОВЕКА */
+.appearance-student-list {
+    display: grid;
+    gap: 8px; /* Уменьшили отступ между строками */
+    margin-bottom: 30px;
+}
+
+.appearance-student-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px; /* Уменьшили вертикальные отступы */
+    background-color: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    min-height: 50px; /* Уменьшили минимальную высоту */
+    height: 50px; /* Фиксированная высота */
+}
+
+.appearance-student-item:hover {
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.appearance-student-name {
+    font-size: 15px; /* Немного уменьшили шрифт */
+    font-weight: bold;
+    color: #333;
+    flex-grow: 1;
+}
+
+.appearance-status {
+    display: flex;
+    align-items: center;
+    gap: 6px; /* Уменьшили отступ между иконками */
+    margin-left: 15px;
+    flex-shrink: 0;
+}
+
+.appearance-no-violations {
+    color: #28a745;
+    font-size: 16px; /* Уменьшили размер иконки */
+}
+
+.appearance-violation-icon {
+    font-size: 16px; /* Уменьшили размер иконок нарушений */
+    margin-left: 1px;
+}
+
+.appearance-violation-count {
+    background-color: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 18px; /* Уменьшили размер счетчика */
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.appearance-submit-section {
+    text-align: center;
+}
+
+.appearance-submit-button {
+    padding: 15px 30px;
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.appearance-submit-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Модальное окно */
+.appearance-violation-modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+}
+
+.appearance-modal-content {
+    background-color: white;
+    border-radius: 10px;
+    padding: 25px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.appearance-modal-title {
+    margin-bottom: 20px;
+    color: #333;
+    text-align: center;
+}
+
+.appearance-violation-options {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 25px;
+}
+
+.appearance-violation-option {
+    display: flex;
+    align-items: center;
+    padding: 12px;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.appearance-violation-option:hover {
+    border-color: #667eea;
+    background-color: #f8f9fa;
+}
+
+.appearance-violation-option input[type="checkbox"] {
+    display: none;
+}
+
+.appearance-checkmark {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #ddd;
+    border-radius: 4px;
+    margin-right: 12px;
+    position: relative;
+    transition: all 0.3s ease;
+    flex-shrink: 0;
+}
+
+.appearance-violation-option input[type="checkbox"]:checked + .appearance-checkmark {
+    background-color: #667eea;
+    border-color: #667eea;
+}
+
+.appearance-violation-option input[type="checkbox"]:checked + .appearance-checkmark::after {
+    content: '✓';
+    position: absolute;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.appearance-violation-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+}
+
+.appearance-violation-emoji {
+    font-size: 18px;
+}
+
+.appearance-modal-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+}
+
+.appearance-cancel-button {
+    padding: 10px 20px;
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.appearance-cancel-button:hover {
+    background-color: #5a6268;
+}
+
+.appearance-save-button {
+    padding: 10px 20px;
+    background-color: #667eea;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.appearance-save-button:hover {
+    background-color: #5a67d8;
+}
+
+/* Страница успеха */
+.appearance-success-content {
+    text-align: center;
+    padding: 30px 20px;
+}
+
+.appearance-success-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+}
+
+.appearance-success-content h2 {
+    color: #28a745;
+    margin-bottom: 25px;
+}
+
+.appearance-submission-info {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    margin-bottom: 25px;
+    text-align: left;
+}
+
+.appearance-submission-info p {
+    margin: 8px 0;
+    font-size: 16px;
+}
+
+.appearance-violations-summary {
+    margin-bottom: 30px;
+    text-align: left;
+}
+
+.appearance-violations-summary h3 {
+    margin-bottom: 15px;
+    color: #333;
+}
+
+.appearance-violations-list {
+    display: grid;
+    gap: 8px; /* Уменьшили отступ между строками */
+}
+
+.appearance-student-violations {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 12px; /* Уменьшили отступы */
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    min-height: 45px; /* Уменьшили высоту */
+}
+
+.appearance-violations {
+    display: flex;
+    gap: 6px; /* Уменьшили отступ между бейджами */
+    flex-wrap: wrap;
+}
+
+.appearance-violation-badge {
+    padding: 5px 10px; /* Уменьшили отступы в бейджах */
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+    border-radius: 20px;
+    font-size: 13px; /* Уменьшили шрифт */
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.appearance-no-violations-message {
+    color: #6c757d;
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+.appearance-action-buttons {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .appearance-header-top {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .appearance-class-title, .appearance-page-title {
+        font-size: 20px;
+    }
+    
+    .appearance-student-item {
+        padding: 8px 12px; /* Еще уменьшили на мобильных */
+        min-height: 45px;
+        height: 45px;
+    }
+    
+    .appearance-student-name {
+        font-size: 14px;
+    }
+    
+    .appearance-modal-content {
+        width: 95%;
+        padding: 20px;
+    }
+    
+    .appearance-action-buttons {
+        flex-direction: column;
+    }
+    
+    .appearance-action-buttons a {
+        text-align: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .appearance-container {
+        padding: 10px;
+    }
+    
+    .appearance-student-item {
+        padding: 6px 10px; /* Минимальные отступы */
+        min-height: 42px;
+        height: 42px;
+    }
+    
+    .appearance-student-name {
+        font-size: 13px;
+    }
+    
+    .appearance-violation-option {
+        padding: 10px;
+    }
+    
+    .appearance-violation-label {
+        font-size: 14px;
+    }
+    
+    .appearance-status {
+        margin-left: 10px;
+    }
+    
+    .appearance-violation-icon {
+        font-size: 14px;
+    }
+    
+    .appearance-no-violations {
+        font-size: 14px;
+    }
+}
+
+/* Гарантия что всё в одной строке */
+.appearance-student-item {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+}
+
+.appearance-student-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.appearance-status {
+    white-space: nowrap;
+}
+
+/* Компактное отображение для списка студентов */
+.appearance-student-list.compact .appearance-student-item {
+    padding: 8px 12px;
+    min-height: 44px;
+    height: 44px;
+}
+
+.appearance-student-list.compact .appearance-student-name {
+    font-size: 14px;
+}

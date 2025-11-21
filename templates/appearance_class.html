@@ -4,27 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Внешний вид - {{ class_name }}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='appearance.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='appearance_pages.css') }}">
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <div class="header-top">
-                <a href="{{ url_for('appearance') }}" class="back-button">← Назад к выбору класса</a>
-                <div class="class-title">{{ class_name.replace('-', ' ') }} класс</div>
+    <div class="appearance-container">
+        <div class="appearance-header">
+            <div class="appearance-header-top">
+                <a href="{{ url_for('appearance') }}" class="appearance-back-button">← Назад к выбору класса</a>
+                <div class="appearance-class-title">{{ class_name.replace('-', ' ') }} класс</div>
                 {% if selected_employee %}
-                <div class="teacher-info">
+                <div class="appearance-teacher-info">
                     {{ selected_employee.lastName }} {{ selected_employee.firstName }}
                 </div>
                 {% endif %}
             </div>
             
-            <div class="instructions">
-                <div class="instructions-header" onclick="toggleInstructions()">
+            <div class="appearance-instructions">
+                <div class="appearance-instructions-header" onclick="toggleInstructions()">
                     <span>Инструкция по использованию</span>
                     <span id="instructionsIcon">▼</span>
                 </div>
-                <div class="instructions-content" id="instructionsContent">
+                <div class="appearance-instructions-content" id="instructionsContent">
                     <ul>
                         <li>Нажмите на ученика, чтобы добавить или изменить нарушения</li>
                         <li>Выберите соответствующие нарушения в появившемся меню</li>
@@ -43,63 +43,63 @@
             </div>
         </div>
         
-        <div class="student-list" id="studentList">
+        <div class="appearance-student-list" id="studentList">
             {% for student in students %}
-            <div class="student-item" onclick="openModal('{{ student }}')">
-                <div class="student-name">{{ student }}</div>
-                <div class="status" id="status-{{ loop.index0 }}">
-                    <span class="no-violations">✅</span>
+            <div class="appearance-student-item" onclick="openModal('{{ student.id }}', '{{ student.lastName }} {{ student.firstName }}')">
+                <div class="appearance-student-name">{{ student.lastName }} {{ student.firstName }}</div>
+                <div class="appearance-status" id="status-{{ student.id }}">
+                    <span class="appearance-no-violations">✅</span>
                 </div>
             </div>
             {% endfor %}
         </div>
         
-        <div class="submit-section">
-            <button type="button" class="submit-button" onclick="submitData()">Отправить данные</button>
+        <div class="appearance-submit-section">
+            <button type="button" class="appearance-submit-button" onclick="submitData()">Отправить данные</button>
         </div>
     </div>
     
     <!-- Модальное окно для выбора нарушений -->
-    <div class="violation-modal" id="violationModal">
-        <div class="modal-content">
-            <h3 class="modal-title" id="modalTitle">Выберите нарушения для ученика</h3>
-            <div class="violation-options">
-                <label class="violation-option">
+    <div class="appearance-violation-modal" id="violationModal">
+        <div class="appearance-modal-content">
+            <h3 class="appearance-modal-title" id="modalTitle">Выберите нарушения для ученика</h3>
+            <div class="appearance-violation-options">
+                <label class="appearance-violation-option">
                     <input type="checkbox" id="noBadge" name="violations" value="Нет значка">
-                    <span class="checkmark"></span>
-                    <span class="violation-label">
-                        <span class="violation-emoji">🆔</span>
+                    <span class="appearance-checkmark"></span>
+                    <span class="appearance-violation-label">
+                        <span class="appearance-violation-emoji">🆔</span>
                         Нет значка
                     </span>
                 </label>
-                <label class="violation-option">
+                <label class="appearance-violation-option">
                     <input type="checkbox" id="uniformViolation" name="violations" value="Внешний вид не по уставу">
-                    <span class="checkmark"></span>
-                    <span class="violation-label">
-                        <span class="violation-emoji">👕</span>
+                    <span class="appearance-checkmark"></span>
+                    <span class="appearance-violation-label">
+                        <span class="appearance-violation-emoji">👕</span>
                         Внешний вид не по уставу
                     </span>
                 </label>
-                <label class="violation-option">
+                <label class="appearance-violation-option">
                     <input type="checkbox" id="hairViolation" name="violations" value="Волосы">
-                    <span class="checkmark"></span>
-                    <span class="violation-label">
-                        <span class="violation-emoji">💇</span>
+                    <span class="appearance-checkmark"></span>
+                    <span class="appearance-violation-label">
+                        <span class="appearance-violation-emoji">💇</span>
                         Волосы
                     </span>
                 </label>
-                <label class="violation-option">
+                <label class="appearance-violation-option">
                     <input type="checkbox" id="noSportswear" name="violations" value="Нет спорт формы">
-                    <span class="checkmark"></span>
-                    <span class="violation-label">
-                        <span class="violation-emoji">🏃</span>
+                    <span class="appearance-checkmark"></span>
+                    <span class="appearance-violation-label">
+                        <span class="appearance-violation-emoji">🏃</span>
                         Нет спорт формы
                     </span>
                 </label>
             </div>
-            <div class="modal-buttons">
-                <button type="button" class="cancel-button" onclick="closeModal()">Отмена</button>
-                <button type="button" class="save-button" onclick="saveViolations()">Сохранить</button>
+            <div class="appearance-modal-buttons">
+                <button type="button" class="appearance-cancel-button" onclick="closeModal()">Отмена</button>
+                <button type="button" class="appearance-save-button" onclick="saveViolations()">Сохранить</button>
             </div>
         </div>
     </div>
@@ -107,26 +107,27 @@
     <script>
         // Храним данные о нарушениях локально
         const violationsData = {};
-        let currentStudent = null;
-        const students = {{ students|tojson }};
+        let currentStudentId = null;
+        let currentStudentName = null;
         const class_name = "{{ class_name }}";
 
         // Инициализация данных для каждого ученика
-        students.forEach(student => {
-            violationsData[student] = [];
-        });
+        {% for student in students %}
+        violationsData['{{ student.id }}'] = [];
+        {% endfor %}
 
-        function openModal(studentName) {
-            currentStudent = studentName;
+        function openModal(studentId, studentName) {
+            currentStudentId = studentId;
+            currentStudentName = studentName;
             document.getElementById('modalTitle').textContent = `Выберите нарушения для ${studentName}`;
             
             // Сбросить все чекбоксы
-            document.querySelectorAll('.violation-options input[type="checkbox"]').forEach(checkbox => {
+            document.querySelectorAll('.appearance-violation-options input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
             
             // Установить текущие нарушения ученика
-            violationsData[studentName].forEach(violation => {
+            violationsData[studentId].forEach(violation => {
                 const checkbox = document.querySelector(`input[value="${violation}"]`);
                 if (checkbox) {
                     checkbox.checked = true;
@@ -138,34 +139,34 @@
         
         function closeModal() {
             document.getElementById('violationModal').style.display = 'none';
-            currentStudent = null;
+            currentStudentId = null;
+            currentStudentName = null;
         }
         
         function saveViolations() {
-            if (currentStudent === null) return;
+            if (currentStudentId === null) return;
             
             // Собираем выбранные нарушения
             const selectedViolations = [];
-            document.querySelectorAll('.violation-options input[type="checkbox"]:checked').forEach(checkbox => {
+            document.querySelectorAll('.appearance-violation-options input[type="checkbox"]:checked').forEach(checkbox => {
                 selectedViolations.push(checkbox.value);
             });
             
             // Сохраняем в локальные данные
-            violationsData[currentStudent] = selectedViolations;
+            violationsData[currentStudentId] = selectedViolations;
             
             // Обновляем отображение
-            updateStudentDisplay(currentStudent);
+            updateStudentDisplay(currentStudentId);
             
             closeModal();
         }
         
-        function updateStudentDisplay(studentName) {
-            const studentIndex = students.indexOf(studentName);
-            const statusElement = document.getElementById(`status-${studentIndex}`);
-            const violations = violationsData[studentName];
+        function updateStudentDisplay(studentId) {
+            const statusElement = document.getElementById(`status-${studentId}`);
+            const violations = violationsData[studentId];
             
             if (violations.length === 0) {
-                statusElement.innerHTML = '<span class="no-violations">✅</span>';
+                statusElement.innerHTML = '<span class="appearance-no-violations">✅</span>';
             } else {
                 let iconsHtml = '';
                 violations.forEach(violation => {
@@ -175,10 +176,10 @@
                     else if (violation === 'Волосы') emoji = '💇';
                     else if (violation === 'Нет спорт формы') emoji = '🏃';
                     
-                    iconsHtml += `<span class="violation-icon" title="${violation}">${emoji}</span>`;
+                    iconsHtml += `<span class="appearance-violation-icon" title="${violation}">${emoji}</span>`;
                 });
                 
-                statusElement.innerHTML = iconsHtml + `<span class="violation-count">${violations.length}</span>`;
+                statusElement.innerHTML = iconsHtml + `<span class="appearance-violation-count">${violations.length}</span>`;
             }
         }
         
@@ -207,8 +208,9 @@
                 const result = await response.json();
                 
                 if (result.success) {
-                    // Перенаправляем на страницу успеха
-                    window.location.href = `/appearance-submission-success?class_name=${encodeURIComponent(class_name)}&timestamp=${encodeURIComponent(result.timestamp)}`;
+                    // Перенаправляем на страницу успеха с данными о нарушениях
+                    const violationsJson = encodeURIComponent(JSON.stringify(result.violations || {}));
+                    window.location.href = `/appearance-submission-success?class_name=${encodeURIComponent(class_name)}&timestamp=${encodeURIComponent(result.timestamp)}&violations=${violationsJson}`;
                 } else {
                     alert('Ошибка при отправке данных: ' + result.message);
                 }

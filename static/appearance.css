@@ -646,3 +646,33 @@
         font-size: 14px;
     }
 }
+
+/* Дополнительные стили для правильного расположения элементов */
+
+.student-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background-color: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.student-name {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    flex-grow: 1;
+}
+
+.status {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 15px;
+}
+
+/* Остальные стили остаются без изменений */
