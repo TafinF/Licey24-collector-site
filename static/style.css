@@ -60,19 +60,52 @@ body {
     font-size: 14px;
 }
 
-.form-group input {
+/* Стили для поля ввода с кнопкой глаза */
+.input-with-eye {
+    position: relative;
     width: 100%;
-    padding: 12px 15px;
+}
+
+.input-with-eye input {
+    width: 100%;
+    padding: 12px 50px 12px 15px;
     border: 2px solid #e1e5e9;
     border-radius: 8px;
     font-size: 16px;
     transition: all 0.3s ease;
 }
 
-.form-group input:focus {
+.input-with-eye input:focus {
     outline: none;
     border-color: #667eea;
     box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.eye-btn {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.eye-btn:hover {
+    background: #f0f0f0;
+}
+
+.eye-btn:active {
+    background: #e0e0e0;
 }
 
 /* Стили для аккордеона с инструкциями */
@@ -152,5 +185,16 @@ body {
     
     .login-header h1 {
         font-size: 24px;
+    }
+    
+    .input-with-eye input {
+        padding: 12px 45px 12px 12px;
+    }
+    
+    .eye-btn {
+        right: 8px;
+        width: 25px;
+        height: 25px;
+        font-size: 16px;
     }
 }

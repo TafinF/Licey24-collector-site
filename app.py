@@ -31,6 +31,10 @@ def check_authentication():
     if password_hash != CORRECT_PASSWORD_HASH:
         return redirect(url_for('login'))
 
+@app.route('/robots.txt')
+def robots():
+    return app.send_static_file('robots.txt')
+
 @app.route('/')
 def index():
     """Главная страница (только для аутентифицированных пользователей)"""
