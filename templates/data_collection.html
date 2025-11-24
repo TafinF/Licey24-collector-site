@@ -341,6 +341,28 @@
         .dropdown-arrow.rotated {
             transform: rotate(180deg)
         }
+
+        .btn-loading {
+            background-color: #6c757d !important;
+            cursor: not-allowed !important;
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -458,14 +480,17 @@
 
             // Обработка кнопки отправки данных
             document.getElementById('submit-btn').addEventListener('click', function () {
+                const submitBtn = document.getElementById('submit-btn');
+                const originalText = submitBtn.innerHTML;
+
+                // Показываем индикатор загрузки
+                submitBtn.disabled = true;
+                submitBtn.classList.add('btn-loading');
+                submitBtn.innerHTML = '<span class="loading-spinner"></span> Отправка...';
+
                 const dataToSend = {
                     data: studentData
                 };
-
-                // Показываем индикатор загрузки (опционально)
-                const submitBtn = document.getElementById('submit-btn');
-                submitBtn.disabled = true;
-                submitBtn.textContent = 'Отправка...';
 
                 fetch(`/save-data/${data_type}/${class_name}`, {
                     method: 'POST',
@@ -474,15 +499,14 @@
                     },
                     body: JSON.stringify(dataToSend)
                 })
-                    .then(response => {
-                        // Сервер всегда должен возвращать редирект
-                        if (response.redirected) {
-                            window.location.href = response.url;
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Добавляем параметр success в URL и переходим
+                            const redirectUrl = data.redirect_url + '?success=true';
+                            window.location.href = redirectUrl;
                         } else {
-                            // На всякий случай, если что-то пошло не так
-                            return response.json().then(data => {
-                                throw new Error(data.error || 'Неизвестная ошибка');
-                            });
+                            throw new Error(data.error || 'Неизвестная ошибка');
                         }
                     })
                     .catch(error => {
@@ -490,7 +514,8 @@
                         alert('Ошибка при отправке данных: ' + error.message);
                         // Восстанавливаем кнопку
                         submitBtn.disabled = false;
-                        submitBtn.textContent = 'Отправить данные';
+                        submitBtn.classList.remove('btn-loading');
+                        submitBtn.innerHTML = originalText;
                     });
             });
 
@@ -553,7 +578,7 @@
                                 applySelections();
                                 modal.classList.remove('active');
                                 resetModal();
-                            }, 300);
+                            }, 100);
                         }
                     });
                 }

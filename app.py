@@ -260,8 +260,13 @@ def save_data(data_type, class_name):
         with open(file_path, 'w', encoding='utf-8') as f:
             json.dump(save_data, f, ensure_ascii=False, indent=2)
         
-        # Редирект на страницу отчета с флагом успешной отправки
-        return redirect(url_for('view_report', date=date_folder, filename=filename, success=True))
+        # Вместо редиректа возвращаем JSON с URL для перехода
+        report_url = url_for('view_report', date=date_folder, filename=filename, _external=False)
+        return jsonify({
+            'success': True, 
+            'redirect_url': report_url,
+            'message': 'Данные успешно сохранены'
+        })
     
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
