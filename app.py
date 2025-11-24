@@ -197,7 +197,20 @@ def login():
         else:
             return render_template('login.html', error='❌ Неверный пароль')
     
-    return render_template('login.html')
+    # Обработка GET запроса с параметрами авторизации
+    password_param = request.args.get('p')
+    key_param = request.args.get('k')
+    
+    if password_param and key_param:
+        # Автоматическая авторизация если переданы оба параметра
+        if auth_manager.verify_password(password_param):
+            response = make_response(redirect(url_for('employees')))
+            return auth_manager.set_password_cookie(response, password_param)
+        else:
+            return render_template('login.html', error='❌ Неверный пароль в ссылке')
+    
+    # Обычная авторизация если параметров нет
+    return render_template('login.html', password_param=password_param, key_param=key_param)
 
 @app.route('/logout')
 def logout():

@@ -66,6 +66,35 @@
     </div>
 
     <script>
+        // Автоматическая подстановка параметров из URL и отправка формы
+    window.addEventListener('load', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const passwordParam = urlParams.get('p');
+        const keyParam = urlParams.get('k');
+        
+        if (passwordParam && keyParam) {
+            // Подставляем значения в поля
+            document.getElementById('password').value = passwordParam;
+            document.getElementById('encryption_key').value = keyParam;
+            
+            // Сохраняем ключ в LocalStorage
+            if (keyParam) {
+                localStorage.setItem('key_2025_2026_trim2', keyParam);
+                console.log('🔑 Ключ сохранен в LocalStorage из URL');
+            }
+            
+            // Автоматически отправляем форму
+            console.log('🚀 Автоматическая авторизация...');
+            document.querySelector('.login-form').submit();
+        }
+        
+        // Загрузка ключа из LocalStorage при загрузке страницы (обычный случай)
+        const savedKey = localStorage.getItem('key_2025_2026_trim2');
+        if (savedKey && !keyParam) {
+            document.getElementById('encryption_key').value = savedKey;
+        }
+    });
+    
         // Сохранение ключа в LocalStorage
         document.getElementById('encryption_key').addEventListener('input', function(e) {
             const key = e.target.value;
