@@ -30,8 +30,14 @@ class EmployeeManager:
         if self._employees is None:
             self.load_employees()
         
+        # Преобразуем employee_id в int для сравнения
+        try:
+            employee_id_int = int(employee_id)
+        except (ValueError, TypeError):
+            return None
+        
         for employee in self._employees:
-            if employee['id'] == int(employee_id):
+            if employee['id'] == employee_id_int:
                 return employee
         return None
     

@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ковёр :)</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 </head>
+
 <body>
     <div class="container">
         <!-- Хедер -->
@@ -18,14 +20,16 @@
             <div class="content-header">
                 <h2>Передать сведения</h2>
             </div>
-            
+
             <div class="actions-grid">
-                {% if selected_employee and selected_employee.classSupervision != 'нет' %}
-                <a href="/missing/{{ selected_employee.classSupervision|urlencode }}" class="action-btn btn-primary">
-                    📋 Отсутствующие {{ selected_employee.classSupervision }}
+                {% if selected_employee and selected_employee.classSupervision %}
+                {% for class_name in selected_employee.classSupervision %}
+                <a href="/missing/{{ class_name|urlencode }}" class="action-btn btn-primary">
+                    📋 Отсутствующие {{ class_name }}
                 </a>
+                {% endfor %}
                 {% endif %}
-                
+
                 <a href="/appearance" class="action-btn btn-secondary">
                     👔 Внешний вид
                 </a>
@@ -36,11 +40,13 @@
         <footer class="main-footer">
             <div class="footer-content">
                 <div class="employee-info">
-                    👤 {{ selected_employee.lastName }} {{ selected_employee.firstName }} {{ selected_employee.middleName }}
+                    👤 {{ selected_employee.lastName }} {{ selected_employee.firstName }} {{
+                    selected_employee.middleName }}
                 </div>
                 <a href="/logout" class="btn btn-logout">🚪 Выйти</a>
             </div>
         </footer>
     </div>
 </body>
+
 </html>

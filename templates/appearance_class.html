@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Внешний вид - {{ class_name }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='appearance_pages.css') }}">
 </head>
+
 <body>
     <div class="appearance-container">
         <div class="appearance-header">
@@ -15,10 +17,13 @@
                 {% if selected_employee %}
                 <div class="appearance-teacher-info">
                     {{ selected_employee.lastName }} {{ selected_employee.firstName }}
+                    {% if 'PE-teacher' in selected_employee.get('specialParams', []) %}
+                    <span style="color: #666; font-size: 0.9em;">(Физкультура)</span>
+                    {% endif %}
                 </div>
                 {% endif %}
             </div>
-            
+
             <div class="appearance-instructions">
                 <div class="appearance-instructions-header" onclick="toggleInstructions()">
                     <span>Инструкция по использованию</span>
@@ -37,15 +42,18 @@
                         <li>🆔 - Нет значка</li>
                         <li>👕 - Внешний вид не по уставу</li>
                         <li>💇 - Волосы</li>
+                        {% if selected_employee and 'PE-teacher' in selected_employee.get('specialParams', []) %}
                         <li>🏃 - Нет спорт формы</li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
         </div>
-        
+
         <div class="appearance-student-list" id="studentList">
             {% for student in students %}
-            <div class="appearance-student-item" onclick="openModal('{{ student.id }}', '{{ student.lastName }} {{ student.firstName }}')">
+            <div class="appearance-student-item"
+                onclick="openModal('{{ student.id }}', '{{ student.lastName }} {{ student.firstName }}')">
                 <div class="appearance-student-name">{{ student.lastName }} {{ student.firstName }}</div>
                 <div class="appearance-status" id="status-{{ student.id }}">
                     <span class="appearance-no-violations">✅</span>
@@ -53,12 +61,12 @@
             </div>
             {% endfor %}
         </div>
-        
+
         <div class="appearance-submit-section">
             <button type="button" class="appearance-submit-button" onclick="submitData()">Отправить данные</button>
         </div>
     </div>
-    
+
     <!-- Модальное окно для выбора нарушений -->
     <div class="appearance-violation-modal" id="violationModal">
         <div class="appearance-modal-content">
@@ -88,7 +96,7 @@
                         Волосы
                     </span>
                 </label>
-                <label class="appearance-violation-option">
+                <label class="appearance-violation-option" id="sportswearOption" style="display: none;">
                     <input type="checkbox" id="noSportswear" name="violations" value="Нет спорт формы">
                     <span class="appearance-checkmark"></span>
                     <span class="appearance-violation-label">
@@ -120,12 +128,12 @@
             currentStudentId = studentId;
             currentStudentName = studentName;
             document.getElementById('modalTitle').textContent = `Выберите нарушения для ${studentName}`;
-            
+
             // Сбросить все чекбоксы
             document.querySelectorAll('.appearance-violation-options input[type="checkbox"]').forEach(checkbox => {
                 checkbox.checked = false;
             });
-            
+
             // Установить текущие нарушения ученика
             violationsData[studentId].forEach(violation => {
                 const checkbox = document.querySelector(`input[value="${violation}"]`);
@@ -133,38 +141,38 @@
                     checkbox.checked = true;
                 }
             });
-            
+
             document.getElementById('violationModal').style.display = 'flex';
         }
-        
+
         function closeModal() {
             document.getElementById('violationModal').style.display = 'none';
             currentStudentId = null;
             currentStudentName = null;
         }
-        
+
         function saveViolations() {
             if (currentStudentId === null) return;
-            
+
             // Собираем выбранные нарушения
             const selectedViolations = [];
             document.querySelectorAll('.appearance-violation-options input[type="checkbox"]:checked').forEach(checkbox => {
                 selectedViolations.push(checkbox.value);
             });
-            
+
             // Сохраняем в локальные данные
             violationsData[currentStudentId] = selectedViolations;
-            
+
             // Обновляем отображение
             updateStudentDisplay(currentStudentId);
-            
+
             closeModal();
         }
-        
+
         function updateStudentDisplay(studentId) {
             const statusElement = document.getElementById(`status-${studentId}`);
             const violations = violationsData[studentId];
-            
+
             if (violations.length === 0) {
                 statusElement.innerHTML = '<span class="appearance-no-violations">✅</span>';
             } else {
@@ -175,24 +183,24 @@
                     else if (violation === 'Внешний вид не по уставу') emoji = '👕';
                     else if (violation === 'Волосы') emoji = '💇';
                     else if (violation === 'Нет спорт формы') emoji = '🏃';
-                    
+
                     iconsHtml += `<span class="appearance-violation-icon" title="${violation}">${emoji}</span>`;
                 });
-                
+
                 statusElement.innerHTML = iconsHtml + `<span class="appearance-violation-count">${violations.length}</span>`;
             }
         }
-        
+
         async function submitData() {
             // Проверяем, есть ли данные для отправки
             const hasViolations = Object.values(violationsData).some(violations => violations.length > 0);
-            
+
             if (!hasViolations) {
                 if (!confirm('Нет данных о нарушениях для отправки. Отправить пустой отчет?')) {
                     return;
                 }
             }
-            
+
             try {
                 const response = await fetch('/submit-appearance', {
                     method: 'POST',
@@ -204,9 +212,9 @@
                         violations: violationsData
                     })
                 });
-                
+
                 const result = await response.json();
-                
+
                 if (result.success) {
                     // Перенаправляем на страницу успеха с данными о нарушениях
                     const violationsJson = encodeURIComponent(JSON.stringify(result.violations || {}));
@@ -219,11 +227,11 @@
                 alert('Ошибка при отправке данных');
             }
         }
-        
+
         function toggleInstructions() {
             const content = document.getElementById('instructionsContent');
             const icon = document.getElementById('instructionsIcon');
-            
+
             if (content.style.display === 'block') {
                 content.style.display = 'none';
                 icon.textContent = '▼';
@@ -232,18 +240,33 @@
                 icon.textContent = '▲';
             }
         }
-        
+
+        function checkPETeacherStatus() {
+            // Проверяем, является ли учитель учителем физкультуры
+            const isPETeacher = {% if selected_employee and 'PE-teacher' in selected_employee.get('specialParams', []) %} true{% else %} false{% endif %};
+
+        // Показываем/скрываем опцию "Нет спорт формы"
+        const sportswearOption = document.getElementById('sportswearOption');
+        if (sportswearOption) {
+            sportswearOption.style.display = isPETeacher ? 'flex' : 'none';
+        }
+
+        console.log('Учитель физкультуры:', isPETeacher);
+        }
+
         // Закрытие модального окна при клике вне его
-        window.onclick = function(event) {
+        window.onclick = function (event) {
             const modal = document.getElementById('violationModal');
             if (event.target === modal) {
                 closeModal();
             }
         }
-        
-        document.addEventListener('DOMContentLoaded', function() {
+
+        document.addEventListener('DOMContentLoaded', function () {
             console.log('Страница нарушений внешнего вида загружена');
+            checkPETeacherStatus();
         });
     </script>
 </body>
+
 </html>
