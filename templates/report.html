@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Отчёт - {{ report.class_name }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header-success {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            padding: 25px 30px;
+            text-align: center;
+        }
+        
+        .success-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .success-title {
+            font-size: 28px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        .success-subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+        }
+        
+        .report-info {
+            background: #f8f9fa;
+            padding: 20px 30px;
+            border-bottom: 1px solid #e9ecef;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        
+        .info-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .info-label {
+            font-size: 12px;
+            color: #6c757d;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+        }
+        
+        .info-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .filters-section {
+            padding: 20px 30px;
+            background: #e9f7fe;
+            border-bottom: 1px solid #bee5eb;
+        }
+        
+        .filters-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #0c5460;
+        }
+        
+        .filters-grid {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .filter-btn {
+            padding: 8px 16px;
+            border: 1px solid #17a2b8;
+            border-radius: 6px;
+            background: white;
+            color: #17a2b8;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .filter-btn:hover {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .filter-btn.active {
+            background: #17a2b8;
+            color: white;
+        }
+        
+        .students-section {
+            padding: 0 30px;
+        }
+        
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin: 25px 0 15px 0;
+            color: #2c4a7a;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #eaeaea;
+        }
+        
+        .students-list {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .student-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            min-height: 50px;
+            border-bottom: 1px solid #eaeaea;
+        }
+        
+        .student-row:last-child {
+            border-bottom: none;
+        }
+        
+        .student-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+        }
+        
+        .student-number {
+            background: #4a6fa5;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .student-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .selections-display {
+            display: flex;
+            gap: 10px;
+            margin-left: 10px;
+            flex-wrap: wrap;
+            justify-content: flex-end;
+        }
+        
+        .selection-badge {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: #e1ecff;
+            border: 1px solid #4a6fa5;
+            border-radius: 20px;
+            font-size: 14px;
+        }
+        
+        .selection-emoji {
+            font-size: 16px;
+        }
+        
+        .selection-text {
+            color: #2c4a7a;
+            font-weight: 500;
+        }
+        
+        .other-text-badge {
+            background: #fff3cd;
+            border-color: #ffc107;
+        }
+        
+        .other-text {
+            color: #856404;
+        }
+        
+        .no-data {
+            color: #6c757d;
+            font-style: italic;
+        }
+        
+        .stats-section {
+            background: #f8f9fa;
+            padding: 25px 30px;
+            border-top: 1px solid #e9ecef;
+            margin-top: 20px;
+        }
+        
+        .stats-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #2c4a7a;
+            text-align: center;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #4a6fa5;
+            margin-bottom: 5px;
+        }
+        
+        .stat-label {
+            font-size: 14px;
+            color: #6c757d;
+            font-weight: 500;
+        }
+        
+        .actions {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            padding: 20px 30px;
+            background-color: #f9fafc;
+            border-top: 1px solid #eaeaea;
+        }
+        
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 15px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn-primary {
+            background-color: #4a6fa5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: #3a5a8a;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        
+        .hidden {
+            display: none;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Шапка успеха показывается только при редиректе после отправки -->
+        {% if show_success %}
+        <div class="header-success">
+            <div class="success-icon">✅</div>
+            <h1 class="success-title">Данные успешно отправлены</h1>
+            <p class="success-subtitle">Отчёт сохранён в системе</p>
+        </div>
+        {% endif %}
+        
+        <!-- Информация об отчёте -->
+        <div class="report-info">
+            <div class="info-grid">
+                <div class="info-item">
+                    <span class="info-label">Класс</span>
+                    <span class="info-value">{{ report.class_name }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Тип данных</span>
+                    <span class="info-value">
+                        {% if report.data_type == 'appearance' %}
+                        Проверка внешнего вида
+                        {% else %}
+                        Отметка отсутствующих
+                        {% endif %}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Отправитель</span>
+                    <span class="info-value">
+                        {{ report.employee.lastName }} 
+                        {{ report.employee.firstName }} 
+                        {{ report.employee.middleName }}
+                    </span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Время отправки</span>
+                    <span class="info-value" id="report-time">
+                        <!-- Заполнится через JavaScript -->
+                    </span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Фильтры -->
+        <div class="filters-section">
+            <div class="filters-title">Показать:</div>
+            <div class="filters-grid">
+                <button class="filter-btn active" data-filter="all">Все ученики</button>
+                <button class="filter-btn" data-filter="with-data">Только с данными</button>
+                <button class="filter-btn" data-filter="without-data">Только без данных</button>
+            </div>
+        </div>
+        
+        <!-- Список учеников -->
+        <div class="students-section">
+            <h2 class="section-title">Данные по ученикам</h2>
+            <div class="students-list" id="students-list">
+                {% for student_id, student_data in report.students_data.items() %}
+                <div class="student-row" data-has-data="{{ 'true' if student_data.selections else 'false' }}">
+                    <div class="student-info">
+                        <div class="student-number">{{ loop.index }}</div>
+                        <div class="student-name">
+                            {{ student_data.student.lastName }} {{ student_data.student.firstName }}
+                        </div>
+                    </div>
+                    <div class="selections-display">
+                        {% if student_data.selections %}
+                            {% for selection in student_data.selections %}
+                                {% set option_config = config.options | selectattr('id', 'equalto', selection) | first %}
+                                {% if option_config %}
+                                    <div class="selection-badge {% if selection == 'other' %}other-text-badge{% endif %}">
+                                        <span class="selection-emoji">{{ option_config.emoji }}</span>
+                                        <span class="selection-text {% if selection == 'other' %}other-text{% endif %}">
+                                            {% if selection == 'other' and student_data.otherText %}
+                                                {{ option_config.text }}: {{ student_data.otherText }}
+                                            {% else %}
+                                                {{ option_config.text }}
+                                            {% endif %}
+                                        </span>
+                                    </div>
+                                {% endif %}
+                            {% endfor %}
+                        {% else %}
+                            <span class="no-data">Нет данных</span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <!-- Статистика -->
+        <div class="stats-section">
+            <h2 class="stats-title">Статистика</h2>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-total">0</div>
+                    <div class="stat-label">Всего учеников</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-with-data">0</div>
+                    <div class="stat-label">С данными</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-without-data">0</div>
+                    <div class="stat-label">Без данных</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="stat-percentage">0%</div>
+                    <div class="stat-label">Охват</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Действия -->
+        <div class="actions">
+            <a href="{% if report.data_type == 'appearance' %}/appearance{% else %}/missing/{{ report.class_name|urlencode }}{% endif %}" class="btn btn-primary">
+                ← Вернуться к проверке
+            </a>
+            <a href="/" class="btn btn-secondary">На главную</a>
+        </div>
+    </div>
+
+    <script>
+        // Данные отчёта
+        const reportData = {{ report|tojson }};
+        const configData = {{ config|tojson }};
+
+        // Инициализация страницы
+        document.addEventListener('DOMContentLoaded', function() {
+            // Форматируем дату
+            const reportDate = new Date(reportData.timestamp);
+            const formattedDate = reportDate.toLocaleDateString('ru-RU', {
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            document.getElementById('report-time').textContent = formattedDate;
+            
+            // Заполняем статистику
+            updateStatistics();
+            
+            // Обработка фильтров
+            const filterButtons = document.querySelectorAll('.filter-btn');
+            filterButtons.forEach(btn => {
+                btn.addEventListener('click', function() {
+                    // Убираем активный класс у всех кнопок
+                    filterButtons.forEach(b => b.classList.remove('active'));
+                    // Добавляем активный класс текущей кнопке
+                    this.classList.add('active');
+                    
+                    // Применяем фильтр
+                    applyFilter(this.dataset.filter);
+                });
+            });
+        });
+
+        function updateStatistics() {
+            const studentRows = document.querySelectorAll('.student-row');
+            const totalStudents = studentRows.length;
+            const withData = Array.from(studentRows).filter(row => row.dataset.hasData === 'true').length;
+            const withoutData = totalStudents - withData;
+            const percentage = totalStudents > 0 ? Math.round((withData / totalStudents) * 100) : 0;
+            
+            document.getElementById('stat-total').textContent = totalStudents;
+            document.getElementById('stat-with-data').textContent = withData;
+            document.getElementById('stat-without-data').textContent = withoutData;
+            document.getElementById('stat-percentage').textContent = percentage + '%';
+        }
+
+        function applyFilter(filterType) {
+            const studentRows = document.querySelectorAll('.student-row');
+            
+            studentRows.forEach(row => {
+                const hasData = row.dataset.hasData === 'true';
+                
+                switch(filterType) {
+                    case 'all':
+                        row.style.display = 'flex';
+                        break;
+                    case 'with-data':
+                        row.style.display = hasData ? 'flex' : 'none';
+                        break;
+                    case 'without-data':
+                        row.style.display = hasData ? 'none' : 'flex';
+                        break;
+                }
+            });
+        }
+    </script>
+</body>
+</html>

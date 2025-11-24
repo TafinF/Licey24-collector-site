@@ -1,65 +1,349 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ config.title }} {{ class_name }}</title>
     <style>
-*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
-body{background-color:#f5f7fa;color:#333;line-height:1.6}
-.container{max-width:800px;margin:0 auto;background:white;box-shadow:0 4px 12px rgba(0,0,0,0.1);overflow:hidden}
-header{background:linear-gradient(135deg,#4a6fa5,#2c4a7a);color:white;padding:20px 25px;display:flex;align-items:center;justify-content:space-between}
-.header-content{flex:1}
-h1{font-size:24px;margin-bottom:5px}
-.description{font-size:16px;opacity:.9}
-.back-btn{background:rgba(255,255,255,0.2);border:none;color:white;padding:10px 20px;border-radius:8px;display:flex;align-items:center;gap:8px;cursor:pointer;transition:all .2s;font-size:15px;font-weight:600}
-.back-btn:hover{background:rgba(255,255,255,0.3)}
-.instructions-container{background-color:#e9f2ff;border-left:4px solid #4a6fa5;margin:15px 25px;border-radius:0 8px 8px 0;overflow:hidden}
-.instructions-toggle{padding:12px 15px;display:flex;justify-content:space-between;align-items:center;cursor:pointer;font-weight:600;color:#2c4a7a}
-.instructions-toggle:hover{background-color:#d9e8ff}
-.instructions-content{padding:0 15px;max-height:0;overflow:hidden;transition:max-height .3s ease-out}
-.instructions-content.active{padding:15px;max-height:500px}
-.instructions-list{list-style-type:none}
-.instructions-list li{margin-bottom:10px;padding-left:20px;position:relative}
-.instructions-list li:before{content:"•";color:#4a6fa5;font-weight:bold;position:absolute;left:0}
-.students-section{padding:0 25px}
-.students-list{display:flex;flex-direction:column}
-.student-row{display:flex;align-items:center;justify-content:space-between;padding:15px 0;cursor:pointer;transition:all .2s;min-height:50px;border-bottom:1px solid #eaeaea}
-.student-row:last-child{border-bottom:none}
-.student-row:hover{background-color:#f8faff}
-.student-name{font-weight:600;font-size:16px;color:#333}
-.selections-icons{display:flex;gap:8px;margin-left:10px}
-.selection-icon{font-size:18px}
-.actions{display:flex;justify-content:space-between;align-items:center;padding:20px 25px;background-color:#f9fafc;border-top:1px solid #eaeaea;margin-top:10px}
-.teacher-name{font-weight:600;color:#2c4a7a;font-size:15px}
-.btn{padding:12px 24px;border:none;border-radius:8px;font-weight:600;cursor:pointer;transition:all .2s;font-size:15px}
-.btn-submit{background-color:#4a6fa5;color:white}
-.btn-submit:hover{background-color:#3a5a8a;transform:translateY(-1px)}
-.modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);z-index:1000;justify-content:center;align-items:center}
-.modal.active{display:flex}
-.modal-content{background:white;border-radius:12px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;box-shadow:0 8px 24px rgba(0,0,0,0.2)}
-.modal-header{background:linear-gradient(135deg,#4a6fa5,#2c4a7a);color:white;padding:20px 25px;border-radius:12px 12px 0 0}
-.modal-title{font-size:20px;margin-bottom:5px}
-.modal-body{padding:20px 25px}
-.options-list{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
-.option-item{display:flex;align-items:center;padding:12px 15px;border:1px solid #e0e0e0;border-radius:8px;cursor:pointer;transition:all .2s}
-.option-item:hover{background-color:#f0f5ff;border-color:#c0d0e8}
-.option-item.selected{background-color:#e1ecff;border-color:#4a6fa5}
-.option-emoji{margin-right:10px;font-size:18px;width:24px;text-align:center}
-.option-text{font-size:14px;flex:1}
-.text-input-container{margin-top:15px;padding:0 5px}
-.text-input{width:100%;padding:12px 15px;border:1px solid #ddd;border-radius:8px;font-size:15px;background-color:#f9f9f9}
-.text-input:focus{outline:none;border-color:#4a6fa5;background-color:white}
-.modal-actions{display:flex;justify-content:space-between;padding:20px 25px;background-color:#f9fafc;border-top:1px solid #eaeaea;border-radius:0 0 12px 12px}
-.btn-cancel{background-color:#f0f0f0;color:#666}
-.btn-cancel:hover{background-color:#e0e0e0}
-.btn-apply{background-color:#4a6fa5;color:white}
-.btn-apply:hover{background-color:#3a5a8a}
-.hidden{display:none}
-.dropdown-arrow{transition:transform .3s}
-.dropdown-arrow.rotated{transform:rotate(180deg)}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            overflow: hidden
+        }
+
+        header {
+            background: linear-gradient(135deg, #4a6fa5, #2c4a7a);
+            color: white;
+            padding: 20px 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between
+        }
+
+        .header-content {
+            flex: 1
+        }
+
+        h1 {
+            font-size: 24px;
+            margin-bottom: 5px
+        }
+
+        .description {
+            font-size: 16px;
+            opacity: .9
+        }
+
+        .back-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 15px;
+            font-weight: 600
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.3)
+        }
+
+        .instructions-container {
+            background-color: #e9f2ff;
+            border-left: 4px solid #4a6fa5;
+            margin: 15px 25px;
+            border-radius: 0 8px 8px 0;
+            overflow: hidden
+        }
+
+        .instructions-toggle {
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #2c4a7a
+        }
+
+        .instructions-toggle:hover {
+            background-color: #d9e8ff
+        }
+
+        .instructions-content {
+            padding: 0 15px;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height .3s ease-out
+        }
+
+        .instructions-content.active {
+            padding: 15px;
+            max-height: 500px
+        }
+
+        .instructions-list {
+            list-style-type: none
+        }
+
+        .instructions-list li {
+            margin-bottom: 10px;
+            padding-left: 20px;
+            position: relative
+        }
+
+        .instructions-list li:before {
+            content: "•";
+            color: #4a6fa5;
+            font-weight: bold;
+            position: absolute;
+            left: 0
+        }
+
+        .students-section {
+            padding: 0 25px
+        }
+
+        .students-list {
+            display: flex;
+            flex-direction: column
+        }
+
+        .student-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            cursor: pointer;
+            transition: all .2s;
+            min-height: 50px;
+            border-bottom: 1px solid #eaeaea
+        }
+
+        .student-row:last-child {
+            border-bottom: none
+        }
+
+        .student-row:hover {
+            background-color: #f8faff
+        }
+
+        .student-name {
+            font-weight: 600;
+            font-size: 16px;
+            color: #333
+        }
+
+        .selections-icons {
+            display: flex;
+            gap: 8px;
+            margin-left: 10px
+        }
+
+        .selection-icon {
+            font-size: 18px
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 25px;
+            background-color: #f9fafc;
+            border-top: 1px solid #eaeaea;
+            margin-top: 10px
+        }
+
+        .teacher-name {
+            font-weight: 600;
+            color: #2c4a7a;
+            font-size: 15px
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .2s;
+            font-size: 15px
+        }
+
+        .btn-submit {
+            background-color: #4a6fa5;
+            color: white
+        }
+
+        .btn-submit:hover {
+            background-color: #3a5a8a;
+            transform: translateY(-1px)
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center
+        }
+
+        .modal.active {
+            display: flex
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2)
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #4a6fa5, #2c4a7a);
+            color: white;
+            padding: 20px 25px;
+            border-radius: 12px 12px 0 0
+        }
+
+        .modal-title {
+            font-size: 20px;
+            margin-bottom: 5px
+        }
+
+        .modal-body {
+            padding: 20px 25px
+        }
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px
+        }
+
+        .option-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all .2s
+        }
+
+        .option-item:hover {
+            background-color: #f0f5ff;
+            border-color: #c0d0e8
+        }
+
+        .option-item.selected {
+            background-color: #e1ecff;
+            border-color: #4a6fa5
+        }
+
+        .option-emoji {
+            margin-right: 10px;
+            font-size: 18px;
+            width: 24px;
+            text-align: center
+        }
+
+        .option-text {
+            font-size: 14px;
+            flex: 1
+        }
+
+        .text-input-container {
+            margin-top: 15px;
+            padding: 0 5px
+        }
+
+        .text-input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #f9f9f9
+        }
+
+        .text-input:focus {
+            outline: none;
+            border-color: #4a6fa5;
+            background-color: white
+        }
+
+        .modal-actions {
+            display: flex;
+            justify-content: space-between;
+            padding: 20px 25px;
+            background-color: #f9fafc;
+            border-top: 1px solid #eaeaea;
+            border-radius: 0 0 12px 12px
+        }
+
+        .btn-cancel {
+            background-color: #f0f0f0;
+            color: #666
+        }
+
+        .btn-cancel:hover {
+            background-color: #e0e0e0
+        }
+
+        .btn-apply {
+            background-color: #4a6fa5;
+            color: white
+        }
+
+        .btn-apply:hover {
+            background-color: #3a5a8a
+        }
+
+        .hidden {
+            display: none
+        }
+
+        .dropdown-arrow {
+            transition: transform .3s
+        }
+
+        .dropdown-arrow.rotated {
+            transform: rotate(180deg)
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <header>
@@ -69,7 +353,7 @@ h1{font-size:24px;margin-bottom:5px}
             </div>
             <button class="back-btn" onclick="window.history.back()">← Назад</button>
         </header>
-        
+
         {% if config.instructions %}
         <div class="instructions-container">
             <div class="instructions-toggle" id="instructions-toggle">
@@ -85,7 +369,7 @@ h1{font-size:24px;margin-bottom:5px}
             </div>
         </div>
         {% endif %}
-        
+
         <div class="students-section">
             <div class="students-list" id="students-list">
                 {% for student in students %}
@@ -96,7 +380,7 @@ h1{font-size:24px;margin-bottom:5px}
                 {% endfor %}
             </div>
         </div>
-        
+
         <div class="actions">
             <div class="teacher-name">{{ selected_employee.lastName }} {{ selected_employee.firstName }}</div>
             <button class="btn btn-submit" id="submit-btn">Отправить данные</button>
@@ -131,7 +415,7 @@ h1{font-size:24px;margin-bottom:5px}
     </div>
 
     <script>
-        const config = {{ config|tojson }};
+        const config = {{ config| tojson }};
         const class_name = "{{ class_name }}";
         const data_type = "{{ data_type }}";
 
@@ -139,19 +423,19 @@ h1{font-size:24px;margin-bottom:5px}
         const studentData = {};
 
         // Инициализация страницы
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             // Обработка инструкции
             const instructionsToggle = document.getElementById('instructions-toggle');
             if (instructionsToggle) {
                 const instructionsContent = document.getElementById('instructions-content');
                 const dropdownArrow = instructionsToggle.querySelector('.dropdown-arrow');
-                
-                instructionsToggle.addEventListener('click', function() {
+
+                instructionsToggle.addEventListener('click', function () {
                     instructionsContent.classList.toggle('active');
                     dropdownArrow.classList.toggle('rotated');
                 });
             }
-            
+
             // Инициализация данных студентов
             const studentRows = document.querySelectorAll('.student-row');
             studentRows.forEach(row => {
@@ -163,21 +447,26 @@ h1{font-size:24px;margin-bottom:5px}
                     otherText: ""
                 };
             });
-            
+
             // Обработка клика по студенту
             studentRows.forEach(row => {
-                row.addEventListener('click', function() {
+                row.addEventListener('click', function () {
                     const studentId = this.getAttribute('data-student-id');
                     openModal(studentId);
                 });
             });
-            
+
             // Обработка кнопки отправки данных
-            document.getElementById('submit-btn').addEventListener('click', function() {
+            document.getElementById('submit-btn').addEventListener('click', function () {
                 const dataToSend = {
                     data: studentData
                 };
-                
+
+                // Показываем индикатор загрузки (опционально)
+                const submitBtn = document.getElementById('submit-btn');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Отправка...';
+
                 fetch(`/save-data/${data_type}/${class_name}`, {
                     method: 'POST',
                     headers: {
@@ -185,216 +474,223 @@ h1{font-size:24px;margin-bottom:5px}
                     },
                     body: JSON.stringify(dataToSend)
                 })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        alert('Данные успешно сохранены!');
-                    } else {
-                        alert('Ошибка при сохранении данных: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Ошибка при отправке данных');
-                });
+                    .then(response => {
+                        // Сервер всегда должен возвращать редирект
+                        if (response.redirected) {
+                            window.location.href = response.url;
+                        } else {
+                            // На всякий случай, если что-то пошло не так
+                            return response.json().then(data => {
+                                throw new Error(data.error || 'Неизвестная ошибка');
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('Ошибка при отправке данных: ' + error.message);
+                        // Восстанавливаем кнопку
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Отправить данные';
+                    });
             });
-            
+
             // Инициализация модального окна
             initModal();
         });
 
 
-function initModal() {
-    const modal = document.getElementById('modal');
-    const optionsList = document.getElementById('options-list');
-    const textInputContainer = document.getElementById('text-input-container');
-    const textInput = document.getElementById('text-input');
-    const applyButton = document.getElementById('modal-apply');
-    
-    // Скрываем кнопку "Применить" по умолчанию для единичного выбора
-    if (!config.multiple_choices) {
-        applyButton.style.display = 'none';
-    }
-    
-    // Заполнение опций в модальном окне
-    const optionItems = optionsList.querySelectorAll('.option-item');
-    optionItems.forEach(item => {
-        const optionId = item.getAttribute('data-option-id');
-        const optionData = config.options.find(opt => opt.id === optionId);
-        
-        if (optionData) {
-            item.addEventListener('click', function() {
-                // Если множественный выбор запрещен, снимаем выбор с других опций
-                if (!config.multiple_choices) {
-                    optionItems.forEach(otherItem => {
-                        if (otherItem !== this) {
-                            otherItem.classList.remove('selected');
+        function initModal() {
+            const modal = document.getElementById('modal');
+            const optionsList = document.getElementById('options-list');
+            const textInputContainer = document.getElementById('text-input-container');
+            const textInput = document.getElementById('text-input');
+            const applyButton = document.getElementById('modal-apply');
+
+            // Скрываем кнопку "Применить" по умолчанию для единичного выбора
+            if (!config.multiple_choices) {
+                applyButton.style.display = 'none';
+            }
+
+            // Заполнение опций в модальном окне
+            const optionItems = optionsList.querySelectorAll('.option-item');
+            optionItems.forEach(item => {
+                const optionId = item.getAttribute('data-option-id');
+                const optionData = config.options.find(opt => opt.id === optionId);
+
+                if (optionData) {
+                    item.addEventListener('click', function () {
+                        // Если множественный выбор запрещен, снимаем выбор с других опций
+                        if (!config.multiple_choices) {
+                            optionItems.forEach(otherItem => {
+                                if (otherItem !== this) {
+                                    otherItem.classList.remove('selected');
+                                }
+                            });
+                        }
+
+                        this.classList.toggle('selected');
+
+                        // Показать/скрыть текстовое поле если выбрана опция "Другое"
+                        if (optionData.has_text_input && this.classList.contains('selected')) {
+                            textInputContainer.classList.remove('hidden');
+                            // Для единичного выбора показываем кнопку "Применить" при выборе "Другое"
+                            if (!config.multiple_choices) {
+                                applyButton.style.display = 'block';
+                            }
+                        } else if (optionData.has_text_input && !this.classList.contains('selected')) {
+                            textInputContainer.classList.add('hidden');
+                            // Сбрасываем текст только если опция "Другое" отменена
+                            textInput.value = "";
+                            // Для единичного выбора скрываем кнопку "Применить" если "Другое" отменено
+                            if (!config.multiple_choices) {
+                                applyButton.style.display = 'none';
+                            }
+                        }
+
+                        // Если множественный выбор запрещен и выбрана НЕ опция "Другое", применяем автоматически
+                        if (!config.multiple_choices && this.classList.contains('selected') && !optionData.has_text_input) {
+                            setTimeout(() => {
+                                applySelections();
+                                modal.classList.remove('active');
+                                resetModal();
+                            }, 300);
                         }
                     });
                 }
-                
-                this.classList.toggle('selected');
-                
-                // Показать/скрыть текстовое поле если выбрана опция "Другое"
-                if (optionData.has_text_input && this.classList.contains('selected')) {
-                    textInputContainer.classList.remove('hidden');
-                    // Для единичного выбора показываем кнопку "Применить" при выборе "Другое"
-                    if (!config.multiple_choices) {
-                        applyButton.style.display = 'block';
-                    }
-                } else if (optionData.has_text_input && !this.classList.contains('selected')) {
-                    textInputContainer.classList.add('hidden');
-                    // Сбрасываем текст только если опция "Другое" отменена
-                    textInput.value = "";
-                    // Для единичного выбора скрываем кнопку "Применить" если "Другое" отменено
-                    if (!config.multiple_choices) {
-                        applyButton.style.display = 'none';
-                    }
-                }
-                
-                // Если множественный выбор запрещен и выбрана НЕ опция "Другое", применяем автоматически
-                if (!config.multiple_choices && this.classList.contains('selected') && !optionData.has_text_input) {
-                    setTimeout(() => {
-                        applySelections();
-                        modal.classList.remove('active');
-                        resetModal();
-                    }, 300);
+            });
+
+            // Обработчики кнопок модального окна
+            document.getElementById('modal-cancel').addEventListener('click', function () {
+                modal.classList.remove('active');
+                resetModal();
+            });
+
+            applyButton.addEventListener('click', function () {
+                applySelections();
+                modal.classList.remove('active');
+                resetModal();
+            });
+
+            // Закрытие модального окна при клике вне его
+            modal.addEventListener('click', function (e) {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                    resetModal();
                 }
             });
         }
-    });
-    
-    // Обработчики кнопок модального окна
-    document.getElementById('modal-cancel').addEventListener('click', function() {
-        modal.classList.remove('active');
-        resetModal();
-    });
-    
-    applyButton.addEventListener('click', function() {
-        applySelections();
-        modal.classList.remove('active');
-        resetModal();
-    });
-    
-    // Закрытие модального окна при клике вне его
-    modal.addEventListener('click', function(e) {
-        if (e.target === modal) {
-            modal.classList.remove('active');
-            resetModal();
-        }
-    });
-}
 
-function openModal(studentId) {
-    const modal = document.getElementById('modal');
-    const student = studentData[studentId];
-    const applyButton = document.getElementById('modal-apply');
-    
-    // Установка имени студента в модальное окно
-    document.getElementById('modal-student-name').textContent = student.name;
-    
-    // Сброс всех выборов перед восстановлением
-    const optionItems = document.querySelectorAll('.option-item');
-    optionItems.forEach(item => item.classList.remove('selected'));
-    
-    // Сброс текстового поля
-    document.getElementById('text-input').value = "";
-    document.getElementById('text-input-container').classList.add('hidden');
-    
-    // Настройка кнопки "Применить" в зависимости от режима
-    if (config.multiple_choices) {
-        applyButton.style.display = 'block';
-    } else {
-        applyButton.style.display = 'none';
-    }
-    
-    // Восстановление предыдущих выборов
-    const selectedOptions = student.selections || [];
-    
-    // Если множественный выбор запрещен, берем только первую опцию
-    const optionsToRestore = config.multiple_choices ? selectedOptions : (selectedOptions.length > 0 ? [selectedOptions[0]] : []);
-    
-    optionItems.forEach(item => {
-        const optionId = item.getAttribute('data-option-id');
-        if (optionsToRestore.includes(optionId)) {
-            item.classList.add('selected');
-            
-            // Показать текстовое поле если выбрана опция "Другое" и восстановить текст
-            const optionData = config.options.find(opt => opt.id === optionId);
-            if (optionData && optionData.has_text_input) {
-                document.getElementById('text-input-container').classList.remove('hidden');
-                document.getElementById('text-input').value = student.otherText || "";
-                // Для единичного выбора показываем кнопку "Применить" при восстановлении "Другое"
-                if (!config.multiple_choices) {
-                    applyButton.style.display = 'block';
+        function openModal(studentId) {
+            const modal = document.getElementById('modal');
+            const student = studentData[studentId];
+            const applyButton = document.getElementById('modal-apply');
+
+            // Установка имени студента в модальное окно
+            document.getElementById('modal-student-name').textContent = student.name;
+
+            // Сброс всех выборов перед восстановлением
+            const optionItems = document.querySelectorAll('.option-item');
+            optionItems.forEach(item => item.classList.remove('selected'));
+
+            // Сброс текстового поля
+            document.getElementById('text-input').value = "";
+            document.getElementById('text-input-container').classList.add('hidden');
+
+            // Настройка кнопки "Применить" в зависимости от режима
+            if (config.multiple_choices) {
+                applyButton.style.display = 'block';
+            } else {
+                applyButton.style.display = 'none';
+            }
+
+            // Восстановление предыдущих выборов
+            const selectedOptions = student.selections || [];
+
+            // Если множественный выбор запрещен, берем только первую опцию
+            const optionsToRestore = config.multiple_choices ? selectedOptions : (selectedOptions.length > 0 ? [selectedOptions[0]] : []);
+
+            optionItems.forEach(item => {
+                const optionId = item.getAttribute('data-option-id');
+                if (optionsToRestore.includes(optionId)) {
+                    item.classList.add('selected');
+
+                    // Показать текстовое поле если выбрана опция "Другое" и восстановить текст
+                    const optionData = config.options.find(opt => opt.id === optionId);
+                    if (optionData && optionData.has_text_input) {
+                        document.getElementById('text-input-container').classList.remove('hidden');
+                        document.getElementById('text-input').value = student.otherText || "";
+                        // Для единичного выбора показываем кнопку "Применить" при восстановлении "Другое"
+                        if (!config.multiple_choices) {
+                            applyButton.style.display = 'block';
+                        }
+                    }
                 }
+            });
+
+            modal.classList.add('active');
+            modal.currentStudentId = studentId;
+        }
+
+        function applySelections() {
+            const studentId = document.getElementById('modal').currentStudentId;
+            if (!studentId) return;
+
+            const selectedOptions = document.querySelectorAll('.option-item.selected');
+            const selectionsIcons = document.querySelector(`.student-row[data-student-id="${studentId}"] .selections-icons`);
+            const selectedIds = [];
+            const otherText = document.getElementById('text-input').value;
+
+            selectionsIcons.innerHTML = '';
+
+            selectedOptions.forEach(option => {
+                const optionId = option.getAttribute('data-option-id');
+                const optionData = config.options.find(opt => opt.id === optionId);
+
+                selectedIds.push(optionId);
+
+                const icon = document.createElement('span');
+                icon.className = 'selection-icon';
+                icon.textContent = optionData.emoji;
+
+                // Добавляем всплывающую подсказку с текстом для опции "Другое"
+                if (optionId === 'other' && otherText) {
+                    icon.title = optionData.text + ': ' + otherText;
+                } else {
+                    icon.title = optionData.text;
+                }
+
+                selectionsIcons.appendChild(icon);
+            });
+
+            // Сохранение данных
+            studentData[studentId].selections = selectedIds;
+            // Сохраняем текст только если выбрана опция "Другое"
+            if (selectedIds.includes('other')) {
+                studentData[studentId].otherText = otherText;
+            } else {
+                studentData[studentId].otherText = "";
             }
         }
-    });
-    
-    modal.classList.add('active');
-    modal.currentStudentId = studentId;
-}
 
-function applySelections() {
-    const studentId = document.getElementById('modal').currentStudentId;
-    if (!studentId) return;
-    
-    const selectedOptions = document.querySelectorAll('.option-item.selected');
-    const selectionsIcons = document.querySelector(`.student-row[data-student-id="${studentId}"] .selections-icons`);
-    const selectedIds = [];
-    const otherText = document.getElementById('text-input').value;
-    
-    selectionsIcons.innerHTML = '';
-    
-    selectedOptions.forEach(option => {
-        const optionId = option.getAttribute('data-option-id');
-        const optionData = config.options.find(opt => opt.id === optionId);
-        
-        selectedIds.push(optionId);
-        
-        const icon = document.createElement('span');
-        icon.className = 'selection-icon';
-        icon.textContent = optionData.emoji;
-        
-        // Добавляем всплывающую подсказку с текстом для опции "Другое"
-        if (optionId === 'other' && otherText) {
-            icon.title = optionData.text + ': ' + otherText;
-        } else {
-            icon.title = optionData.text;
+        function resetModal() {
+            // Сбрасываем только текстовое поле если опция "Другое" не выбрана
+            const otherOption = document.querySelector('.option-item[data-option-id="other"]');
+            if (!otherOption || !otherOption.classList.contains('selected')) {
+                document.getElementById('text-input').value = "";
+            }
+
+            // Сбрасываем видимость кнопки "Применить"
+            const applyButton = document.getElementById('modal-apply');
+            if (config.multiple_choices) {
+                applyButton.style.display = 'block';
+            } else {
+                applyButton.style.display = 'none';
+            }
+
+            // Очистка текущего студента
+            document.getElementById('modal').currentStudentId = null;
         }
-        
-        selectionsIcons.appendChild(icon);
-    });
-    
-    // Сохранение данных
-    studentData[studentId].selections = selectedIds;
-    // Сохраняем текст только если выбрана опция "Другое"
-    if (selectedIds.includes('other')) {
-        studentData[studentId].otherText = otherText;
-    } else {
-        studentData[studentId].otherText = "";
-    }
-}
-
-function resetModal() {
-    // Сбрасываем только текстовое поле если опция "Другое" не выбрана
-    const otherOption = document.querySelector('.option-item[data-option-id="other"]');
-    if (!otherOption || !otherOption.classList.contains('selected')) {
-        document.getElementById('text-input').value = "";
-    }
-    
-    // Сбрасываем видимость кнопки "Применить"
-    const applyButton = document.getElementById('modal-apply');
-    if (config.multiple_choices) {
-        applyButton.style.display = 'block';
-    } else {
-        applyButton.style.display = 'none';
-    }
-    
-    // Очистка текущего студента
-    document.getElementById('modal').currentStudentId = null;
-}
     </script>
 </body>
+
 </html>

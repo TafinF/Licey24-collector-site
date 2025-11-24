@@ -1,52 +1,138 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ковёр :)</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        :root { --primary: #8B4513; --primary-light: #A0522D; --secondary: #D2691E; --accent: #CD853F; --background: #FFF8DC; --card-bg: #FAEBD7; --text: #5D4037; --text-light: #8D6E63; --shadow: 0 8px 16px rgba(139, 69, 19, 0.15); --radius: 16px; --transition: all 0.3s ease; --appearance-color: #4A90E2; --missing-color: #E74C3C; --author-color: #27AE60; --teacher-color: #F39C12; }
+        body { background: linear-gradient(135deg, var(--background) 0%, #FFEFD5 100%); color: var(--text); min-height: 100vh; line-height: 1.6; }
+        .container { max-width: 1200px; margin: 0 auto; padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
+        .main-header { text-align: center; padding: 30px 0; margin-bottom: 30px; position: relative; }
+        .main-header::after { content: ''; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); width: 200px; height: 4px; background: linear-gradient(to right, transparent, var(--primary), transparent); border-radius: 2px; }
+        .main-header h1 { font-size: 3.5rem; color: var(--primary); text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1); letter-spacing: 2px; font-weight: 700; position: relative; display: inline-block; }
+        .main-header h1::before { content: '🧶'; position: absolute; left: -50px; top: 50%; transform: translateY(-50%); font-size: 2.5rem; }
+        .main-header h1::after { content: '🧶'; position: absolute; right: -50px; top: 50%; transform: translateY(-50%); font-size: 2.5rem; }
+        .main-content { flex: 1; display: flex; flex-direction: column; gap: 40px; }
+        .info-section { background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: var(--shadow); border: 1px solid rgba(139, 69, 19, 0.1); }
+        .section-header { text-align: center; margin-bottom: 25px; }
+        .section-header h2 { font-size: 2.2rem; color: var(--primary); font-weight: 600; position: relative; display: inline-block; }
+        .section-header h2::after { content: ''; position: absolute; bottom: -10px; left: 10%; width: 80%; height: 3px; background: linear-gradient(to right, transparent, var(--accent), transparent); border-radius: 3px; }
+        .actions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .action-btn { display: block; background: white; border-radius: var(--radius); padding: 15px 20px; text-decoration: none; color: var(--text); transition: var(--transition); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); border-left: 5px solid var(--primary); text-align: center; height: 80px; display: flex; flex-direction: column; justify-content: center; }
+        .action-btn:hover { transform: translateY(-5px); box-shadow: 0 12px 20px rgba(139, 69, 19, 0.2); }
+        .btn-primary { border-left-color: var(--primary); }
+        .btn-primary:hover { background: linear-gradient(135deg, #fff 0%, #f8f4f0 100%); }
+        .btn-secondary { border-left-color: var(--secondary); }
+        .btn-secondary:hover { background: linear-gradient(135deg, #fff 0%, #f8f4f0 100%); }
+        .action-title { display: block; font-size: 1.3rem; font-weight: 700; color: var(--primary); line-height: 1.2; }
+        .reports-section { background: var(--card-bg); border-radius: var(--radius); padding: 30px; box-shadow: var(--shadow); border: 1px solid rgba(139, 69, 19, 0.1); }
+        .reports-section h3 { font-size: 1.8rem; color: var(--primary); margin-bottom: 25px; font-weight: 600; text-align: center; }
+        .reports-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .report-btn { display: block; background: white; border-radius: var(--radius); padding: 15px; text-decoration: none; color: var(--text); transition: var(--transition); box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); border-left: 5px solid var(--accent); height: 80px; display: flex; justify-content: space-between; align-items: flex-start; position: relative; }
+        .report-btn:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1); }
+        .report-left { flex: 1; min-width: 0; }
+        .report-class { display: block; font-size: 1.2rem; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .report-time { display: block; font-size: 0.8rem; color: var(--text-light); white-space: nowrap; }
+        .report-right { text-align: right; display: flex; flex-direction: column; align-items: flex-end; gap: 4px; min-width: 100px; }
+        .report-type { display: inline-block; padding: 3px 8px; border-radius: 12px; font-size: 0.75rem; width: fit-content; white-space: nowrap; }
+        .report-type.appearance { background: var(--appearance-color); color: white; }
+        .report-type.missing { background: var(--missing-color); color: white; }
+        .report-role { display: block; font-size: 0.8rem; font-style: italic; white-space: nowrap; }
+        .report-role.author { color: var(--author-color); }
+        .report-role.teacher { color: var(--teacher-color); }
+        .empty-reports { text-align: center; padding: 40px 20px; font-size: 1.2rem; color: var(--text-light); background: rgba(255, 255, 255, 0.7); border-radius: var(--radius); }
+        .main-footer { margin-top: 40px; padding: 20px 0; border-top: 1px solid rgba(139, 69, 19, 0.2); }
+        .footer-content { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
+        .employee-info { font-size: 1.1rem; color: var(--primary); font-weight: 500; }
+        .btn-logout { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: rgba(139, 69, 19, 0.1); color: var(--primary); text-decoration: none; border-radius: 50px; font-weight: 500; transition: var(--transition); }
+        .btn-logout:hover { background: rgba(139, 69, 19, 0.2); transform: translateY(-2px); }
+        @media (max-width: 768px) {
+            .main-header h1 { font-size: 2.5rem; }
+            .main-header h1::before, .main-header h1::after { display: none; }
+            .actions-grid, .reports-grid { grid-template-columns: 1fr; }
+            .footer-content { flex-direction: column; text-align: center; }
+            .info-section, .reports-section { padding: 20px; }
+            .report-btn { height: auto; min-height: 80px; flex-direction: row; align-items: center; padding: 12px; }
+            .report-left { flex: 1; min-width: 0; margin-right: 10px; }
+            .report-right { min-width: 90px; align-items: flex-end; }
+            .report-class { font-size: 1.1rem; }
+            .report-time { font-size: 0.75rem; }
+            .report-type { font-size: 0.7rem; padding: 2px 6px; }
+            .report-role { font-size: 0.75rem; }
+        }
+        @media (max-width: 480px) {
+            .container { padding: 15px; }
+            .main-header h1 { font-size: 2rem; }
+            .section-header h2 { font-size: 1.8rem; }
+            .action-btn, .report-btn { padding: 12px; height: 70px; }
+            .report-btn { height: auto; min-height: 70px; }
+            .report-class { font-size: 1rem; }
+            .report-right { min-width: 80px; }
+        }
+        @media (max-width: 360px) {
+            .report-btn { flex-wrap: wrap; height: auto; gap: 8px; }
+            .report-left { flex: 1 1 100%; margin-right: 0; }
+            .report-right { flex: 1 1 100%; flex-direction: row; justify-content: space-between; align-items: center; }
+        }
+    </style>
 </head>
-
 <body>
     <div class="container">
-        <!-- Хедер -->
         <header class="main-header">
             <h1>Ковёр :)</h1>
         </header>
-
-        <!-- Основное содержимое -->
         <main class="main-content">
-            <div class="content-header">
-                <h2>Передать сведения</h2>
-            </div>
-
-            <div class="actions-grid">
-                {% if selected_employee and selected_employee.classSupervision %}
-                {% for class_name in selected_employee.classSupervision %}
-                <a href="/missing/{{ class_name|urlencode }}" class="action-btn btn-primary">
-                    📋 Отсутствующие {{ class_name }}
-                </a>
-                {% endfor %}
+            <section class="info-section">
+                <div class="section-header">
+                    <h2>📤 Передать сведения</h2>
+                </div>
+                <div class="actions-grid">
+                    {% if selected_employee and selected_employee.classSupervision %}
+                    {% for class_name in selected_employee.classSupervision %}
+                    <a href="/missing/{{ class_name|urlencode }}" class="action-btn btn-primary">
+                        <span class="action-title">📋 Отсутствующие {{ class_name }}</span>
+                    </a>
+                    {% endfor %}
+                    {% endif %}
+                    <a href="/appearance" class="action-btn btn-secondary">
+                        <span class="action-title">👔 Внешний вид</span>
+                    </a>
+                </div>
+            </section>
+            <section class="reports-section">
+                <h3>📊 Сегодняшние отчёты</h3>
+                {% if todays_reports %}
+                <div class="reports-grid">
+                    {% for report in todays_reports %}
+                    <a href="/report/{{ report.date }}/{{ report.filename }}" class="report-btn">
+                        <div class="report-left">
+                            <span class="report-class">{{ report.class_name }}</span>
+                            <span class="report-time">в {{ report.time }}</span>
+                        </div>
+                        <div class="report-right">
+                            <span class="report-type {% if report.data_type == 'appearance' %}appearance{% else %}missing{% endif %}">
+                                {% if report.data_type == 'appearance' %}Внешний вид{% else %}Отсутствующие{% endif %}
+                            </span>
+                            <span class="report-role {% if report.author_id == selected_employee.id %}author{% else %}teacher{% endif %}">
+                                {% if report.author_id == selected_employee.id %}Автор: Вы{% else %}Автор: не Вы{% endif %}
+                            </span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-reports">🎉 У вас пока нет отчётов за сегодня</div>
                 {% endif %}
-
-                <a href="/appearance" class="action-btn btn-secondary">
-                    👔 Внешний вид
-                </a>
-            </div>
+            </section>
         </main>
-
-        <!-- Футер -->
         <footer class="main-footer">
             <div class="footer-content">
-                <div class="employee-info">
-                    👤 {{ selected_employee.lastName }} {{ selected_employee.firstName }} {{
-                    selected_employee.middleName }}
-                </div>
+                <div class="employee-info">👤 {{ selected_employee.lastName }} {{ selected_employee.firstName }} {{ selected_employee.middleName }}</div>
                 <a href="/logout" class="btn btn-logout">🚪 Выйти</a>
             </div>
         </footer>
     </div>
 </body>
-
 </html>
