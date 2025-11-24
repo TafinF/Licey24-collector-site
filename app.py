@@ -1,14 +1,15 @@
+from datetime import datetime, timezone, timedelta
 import os
 from flask import Flask, request, render_template, redirect, url_for, make_response, jsonify
 from urllib.parse import unquote
 import json
-from data_managers import EmployeeManager, StudentManager, ViolationManager, AuthManager
+from data_managers import EmployeeManager, StudentManager, AuthManager
 
 # Инициализация менеджеров
 BASE_DIR = 'storage'
 employee_manager = EmployeeManager(BASE_DIR)
 student_manager = StudentManager(BASE_DIR)
-violation_manager = ViolationManager(BASE_DIR)
+
 auth_manager = AuthManager(
     secret_key=os.environ.get('SECRET_KEY', 'dev-secret-key'),
     admin_password=os.environ.get('ADMIN_PASSWORD', 'default_password')
@@ -88,99 +89,121 @@ def appearance():
         classes=classes,
         selected_employee=selected_employee
     )
-
 @app.route('/appearance/<class_name>')
 def appearance_class(class_name):
-    """Страница для отметки нарушений внешнего вида конкретного класса"""
-    decoded_class_name = unquote(class_name)
-    
+    """Страница проверки внешнего вида для конкретного класса"""
+    return render_data_collection_page(class_name, 'appearance')
+
+@app.route('/missing/<class_name>')
+def missing_class(class_name):
+    """Страница отметки отсутствующих для конкретного класса"""
+    return render_data_collection_page(class_name, 'missing')
+
+def render_data_collection_page(class_name, data_type):
+    """Рендер страницы сбора данных"""
     employee_id = request.cookies.get('employee_id')
     selected_employee = employee_manager.get_employee_by_id(employee_id) if employee_id else None
     
-    # Получаем студентов класса с ID
-    students_data = student_manager.get_class_students(decoded_class_name)
+    if not selected_employee:
+        return redirect(url_for('employees'))
+    
+    # Загружаем конфигурацию
+    config_path = os.path.join('storage', f'config-{data_type}.json')
+    try:
+        with open(config_path, 'r', encoding='utf-8') as f:
+            config = json.load(f)
+    except FileNotFoundError:
+        return f"Конфигурация для {data_type} не найдена", 404
+    
+    # Фильтруем опции по condition
+    filtered_options = []
+    for option in config.get('options', []):
+        condition = option.get('condition')
+        if condition is None or condition in selected_employee.get('specialParams', []):
+            filtered_options.append(option)
+    
+    config['options'] = filtered_options
+    
+    # Получаем студентов класса
+    students = student_manager.get_class_students(class_name)
     
     return render_template(
-        'appearance_class.html',
-        class_name=decoded_class_name,
-        students=students_data,
-        selected_employee=selected_employee
+        'data_collection.html',
+        class_name=class_name,
+        config=config,
+        students=students,
+        selected_employee=selected_employee,
+        data_type=data_type
     )
 
-@app.route('/submit-appearance', methods=['POST'])
-def submit_appearance():
-    """Обработка отправки данных о нарушениях внешнего вида"""
+@app.route('/save-data/<data_type>/<class_name>', methods=['POST'])
+def save_data(data_type, class_name):
+    """Сохранение собранных данных"""
+    employee_id = request.cookies.get('employee_id')
+    selected_employee = employee_manager.get_employee_by_id(employee_id) if employee_id else None
+    
+    if not selected_employee:
+        return jsonify({'error': 'Сотрудник не выбран'}), 401
+    
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Нет данных'}), 400
+    
+    # Устанавливаем московский часовой пояс
+    moscow_tz = timezone(timedelta(hours=3))  # UTC+3 для Москвы
+    current_time = datetime.now(moscow_tz)
+    
+    # Формируем полные данные для сохранения
+    save_data = {
+        'timestamp': current_time.isoformat(),
+        'class_name': class_name,
+        'data_type': data_type,
+        'employee': {
+            'id': selected_employee['id'],
+            'lastName': selected_employee['lastName'],
+            'firstName': selected_employee['firstName'],
+            'middleName': selected_employee.get('middleName', '')
+        },
+        'students_data': {}
+    }
+    
+    # Обрабатываем данные студентов
+    for student_id, student_data in data.get('data', {}).items():
+        student_info = next((s for s in student_manager.get_class_students(class_name) 
+                           if str(s['id']) == student_id), None)
+        
+        if student_info:
+            save_data['students_data'][student_id] = {
+                'student': {
+                    'id': student_info['id'],
+                    'lastName': student_info['lastName'],
+                    'firstName': student_info['firstName']
+                },
+                'selections': student_data.get('selections', []),
+                'otherText': student_data.get('otherText', '')
+            }
+    
+    # Сохраняем в файл
     try:
-        data = request.get_json()
-        class_name = data.get('class_name')
-        violations = data.get('violations', {})
+        # Создаем папку с датой (в московском времени)
+        date_folder = current_time.strftime('%Y-%m-%d')
+        save_dir = os.path.join('storage', 'collected_data', date_folder)
+        os.makedirs(save_dir, exist_ok=True)
         
-        print(f"Получены данные о нарушениях для класса {class_name}:")
-        for student_id, student_violations in violations.items():
-            if student_violations:
-                print(f"  ID {student_id}: {student_violations}")
+        # Имя файла: дата_время_класс_тип_данных.json
+        filename = f"{current_time.strftime('%Y-%m-%d_%H-%M-%S')}_{class_name}_{data_type}.json"
+        file_path = os.path.join(save_dir, filename)
         
-        # Получаем информацию о сотруднике
-        employee_id = request.cookies.get('employee_id')
-        employee_info = None
-        if employee_id:
-            employee = employee_manager.get_employee_by_id(employee_id)
-            if employee:
-                employee_info = {
-                    'id': employee['id'],
-                    'lastName': employee['lastName'],
-                    'firstName': employee['firstName'],
-                    'middleName': employee.get('middleName', '')
-                }
+        with open(file_path, 'w', encoding='utf-8') as f:
+            json.dump(save_data, f, ensure_ascii=False, indent=2)
         
-        # Сохраняем данные в файл
-        saved_data = violation_manager.save_violations(class_name, violations, employee_info)
-        
-        if saved_data:
-            return jsonify({
-                'success': True,
-                'message': 'Данные успешно сохранены',
-                'class_name': class_name,
-                'timestamp': saved_data['timestamp'],
-                'violations': violations
-            })
-        else:
-            return jsonify({
-                'success': False,
-                'message': 'Ошибка при сохранении данных'
-            }), 500
-        
+        return jsonify({'success': True, 'message': 'Данные сохранены'})
+    
     except Exception as e:
         print(f"Ошибка при сохранении данных: {e}")
-        return jsonify({
-            'success': False,
-            'message': 'Ошибка при сохранении данных'
-        }), 500
+        return jsonify({'error': 'Ошибка сохранения'}), 500
 
-@app.route('/appearance-submission-success')
-def appearance_submission_success():
-    """Страница успешной отправки данных"""
-    class_name = request.args.get('class_name', '')
-    timestamp = request.args.get('timestamp', '')
-    violations_json = request.args.get('violations', '{}')
-    
-    # Парсим нарушения из JSON строки
-    try:
-        violations = json.loads(violations_json)
-    except:
-        violations = {}
-    
-    # Получаем информацию о выбранном сотруднике
-    employee_id = request.cookies.get('employee_id')
-    selected_employee = employee_manager.get_employee_by_id(employee_id) if employee_id else None
-    
-    return render_template(
-        'appearance_submission_success.html',
-        class_name=class_name,
-        timestamp=timestamp,
-        violations=violations,
-        selected_employee=selected_employee
-    )
+
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

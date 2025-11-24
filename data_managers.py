@@ -103,64 +103,6 @@ class StudentManager:
             return self.load_classes()
         return self._classes
 
-class ViolationManager:
-    """Менеджер для работы с нарушениями"""
-    
-    def __init__(self, base_dir='storage'):
-        self.base_dir = os.path.join(base_dir, 'violations')
-        os.makedirs(self.base_dir, exist_ok=True)
-    
-    def save_violations(self, class_name, violations_data, employee_info=None):
-        """Сохранение данных о нарушениях в файл"""
-        try:
-            # Создаем папку с сегодняшней датой
-            today = datetime.now().strftime('%Y-%m-%d')
-            date_dir = os.path.join(self.base_dir, today)
-            os.makedirs(date_dir, exist_ok=True)
-            
-            # Создаем имя файла
-            timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-            filename = f'{timestamp}_{class_name}.json'
-            filepath = os.path.join(date_dir, filename)
-            
-            # Формируем данные для сохранения
-            data_to_save = {
-                'class_name': class_name,
-                'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
-                'violations': violations_data,
-                'employee': employee_info
-            }
-            
-            # Сохраняем в файл
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(data_to_save, f, ensure_ascii=False, indent=2)
-            
-            print(f"Данные сохранены в файл: {filepath}")
-            return data_to_save
-            
-        except Exception as e:
-            print(f"Ошибка при сохранении данных: {e}")
-            return None
-    
-    def get_violations_by_date(self, date_str):
-        """Получение всех нарушений за определенную дату"""
-        try:
-            violations = []
-            date_dir = os.path.join(self.base_dir, date_str)
-            
-            if os.path.exists(date_dir):
-                for filename in os.listdir(date_dir):
-                    if filename.endswith('.json'):
-                        filepath = os.path.join(date_dir, filename)
-                        with open(filepath, 'r', encoding='utf-8') as f:
-                            violation_data = json.load(f)
-                            violations.append(violation_data)
-            
-            return violations
-        except Exception as e:
-            print(f"Ошибка при загрузке нарушений за {date_str}: {e}")
-            return []
-
 class AuthManager:
     """Менеджер для работы с аутентификацией"""
     
